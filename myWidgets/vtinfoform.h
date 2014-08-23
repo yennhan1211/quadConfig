@@ -1,0 +1,28 @@
+#ifndef VTINFOFORM_H
+#define VTINFOFORM_H
+
+
+#include "mywidgets_global.h"
+#include <QFrame>
+#include <QDialog>
+namespace Ui {
+class vtinfoform;
+}
+
+ class MYWIDGETSSHARED_EXPORT vtinfoform : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit vtinfoform(QWidget *parent = 0);
+    ~vtinfoform();
+
+private:
+    Ui::vtinfoform *ui;
+    QFrame *m_blurBackground;
+ public slots:
+    void SLOT_hideForm();
+    void SLOT_showForm();
+};
+
+#endif // VTINFOFORM_H

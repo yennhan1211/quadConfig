@@ -1,0 +1,15 @@
+#ifndef MYWIDGETS_GLOBAL_H
+#define MYWIDGETS_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(MYWIDGETS_LIBRARY)
+#  define MYWIDGETSSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define MYWIDGETSSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#define RX_LOCATION_LEFT 10
+#define RX_LOCATION_RIGHT 5
+
+#endif // MYWIDGETS_GLOBAL_H
