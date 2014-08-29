@@ -106,6 +106,7 @@ public:
     void setRangeValue(qint32, qint32);
 
     qreal x, y;
+    qreal buff_x,buff_y;
     bool need_move;
 
     bool animFinished() const;
@@ -131,6 +132,7 @@ private:
     qint32 m_location;
     qint32 m_rxWidth, m_rxHeight;
     qint32 min, max;
+
 };
 
 

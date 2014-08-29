@@ -48,7 +48,7 @@
 #define OCTOROTOR_PLUS_DES_URL "doc/Aircraft_OctoRotorI.html"
 #define OCTOROTOR_QUAD_DES_URL "doc/Aircraft_OctoRotorX.html"
 
-#define DES_SETCENTER_RX "Apply for Ailerons , Elevator\n\rand Rudder chanel."
+#define DES_SETCENTER_RX "Note: Only the aileron, elevator and rudder controls need to be centered."
 #define DES_BIND_RX "Apply for Spektrum sattalie DMS2 or DSMx"
 
 #define DES_GIMBAL_ONOFF "This function doesnt work with octocopter frame"

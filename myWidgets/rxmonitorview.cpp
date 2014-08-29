@@ -3,7 +3,7 @@
 
 #include "rxmonitorview.h"
 #include "math.h"
-
+#include <QDebug>
 RxMonitorView::RxMonitorView(qint32 width, qint32 height,
                              qint32 sensorWidth, qint32 sensorHeight,
                              QWidget *parent)
@@ -31,10 +31,12 @@ RxMonitorView::RxMonitorView(qint32 width, qint32 height,
     scene->addItem(sensor);
 
     setScene(scene);
+    buff_x = buff_y = 0;
 }
 
 void RxMonitorView::moveSensor()
 {
+
     need_move = false;
     emit _sensorValueChanged((qint32) x, (qint32) y);
 
@@ -62,11 +64,18 @@ void RxMonitorView::moveSensor()
         animation->setEndValue(QPointF(dx, dy));
         animation->start(QAbstractAnimation::DeleteWhenStopped);
     }
+
 }
 
 void RxMonitorView::handleAnimFinished()
 {
     m_animFinish = true;
+    if(buff_x != 0 && buff_y !=0){
+        x = buff_x;y=buff_y;
+        buff_x = 0;buff_y = 0;
+        moveSensor();
+        qDebug() << "redraw";
+    }
 }
 
 void RxMonitorView::setLocation(int location)

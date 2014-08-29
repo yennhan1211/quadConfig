@@ -31,10 +31,11 @@ void VtRxMonitorView::setValue(const QVariant &value)
     }
     else return;
 
-    if (rx->need_move) {
+    if (rx->animFinished()) {
         rx->moveSensor();
     }
     else {
-        rx->need_move = true;
+        rx->buff_x = rx->x;
+        rx->buff_y = rx->y;
     }
 }
