@@ -105,6 +105,8 @@ private:
         bool m_connect;
         bool m_BindAnimationFlag;
         bool m_ReadConfigFromFileFlag;
+        bool m_Boardresponse;
+        int  m_WriteFail;
         int m_counterToWrite,m_addrWrite,m_lenWrite;
         int *m_dataWrite;
         int m_counterToRead;

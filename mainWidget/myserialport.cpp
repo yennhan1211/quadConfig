@@ -305,15 +305,6 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
         // disconnect port va thu connect lai de test firmware moi
         this->tryToHandleError();
         qDebug() << "flashstatus ->" << m_flashstatus;
-//        // thu connect lai port
-//        this->checkDevice();
-
-//        if (connectStatus) {
-//            _flash.emitFlashStatus(FlashHelper::FlashOk);
-//        }
-//        else {
-//            _flash.emitFlashStatus(FlashHelper::FlashError);
-//        }
 }
 
 void MySerialPort::SLOT_eventWmiChange(int wmiStatus)

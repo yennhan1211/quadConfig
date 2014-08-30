@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     myserialport.cpp \
     serialread.cpp \
     serialWrite.cpp \
-    flashhelper.cpp
+    flashhelper.cpp \
+    requestmanager.cpp
 
 HEADERS  += mainwidget.h \
     myserialport.h \
@@ -26,7 +27,8 @@ HEADERS  += mainwidget.h \
     serialread.h \
     serialWrite.h \
     mystring.h \
-    flashhelper.h
+    flashhelper.h \
+    requestmanager.h
 
 FORMS    += mainwidget.ui
 

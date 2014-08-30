@@ -603,6 +603,8 @@ void mainWidget::intDefaultValue()
     m_dataCounter = 0;
     m_BindAnimationFlag = true;
     m_ReadConfigFromFileFlag = false;
+    m_Boardresponse = true;
+    m_WriteFail = 0;
     lv1 = 0;lv2 = 0;lv3 =0;
     line_edit_value_last = 0;
 
@@ -1518,17 +1520,25 @@ void mainWidget::SLOT_emitSIGNALtoRead()
 {
     if(m_counterToWrite == 0){
 
+        if(m_dataCounter  < 10)
+        {
+        qDebug() << "response";
+        } else {
+             emit SIGNAL_handleReconnect();m_dataCounter = 0;
+             qDebug() << " no response";
+             return;
+        }
         switch (ui->maintabWidget->currentIndex()) {
         case TabRx:
-            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FLYMODE1_ADDR,6);m_dataCounter += 20;}
+            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FLYMODE1_ADDR,6);m_dataCounter+=5;}
             else emit SIGNAL_requestReadData(RX_ALE_ADDR,7);
             break;
         case TabConfig:
-            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FRAME_TYPE_ADDR,9);m_dataCounter += 20;
+            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FRAME_TYPE_ADDR,9);m_dataCounter +=5;
             }
             break;
         case TabGain:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GAIN_ROLL_ADDR,7);m_dataCounter += 20;
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GAIN_ROLL_ADDR,7);m_dataCounter +=5;
              }
             break;
         case TabAuto:
@@ -1536,24 +1546,24 @@ void mainWidget::SLOT_emitSIGNALtoRead()
                  emit SIGNAL_requestReadData(GOHOME_SPEED_ADDR,3);
                  SLEEP(25)
                  emit SIGNAL_requestReadData(VALARM_1_ADDR,3);
-                 m_dataCounter += 20;
+                 m_dataCounter +=5;
 
              }else emit SIGNAL_requestReadData(VBAT_ADDR,4);
             break;
         case TabSensor:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter += 20;}
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter+=5;}
            else  emit SIGNAL_requestReadData(SENSOR_ROLL_ANGLE_ADDR,3);
         case TabGimbal:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GIMBAL_ONOFF_ADDR,9);m_dataCounter += 20;}
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GIMBAL_ONOFF_ADDR,9);m_dataCounter+=5;}
             break;
         case TabFirmware:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(HARDWARE_ADDR,3);m_dataCounter += 20;
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(HARDWARE_ADDR,3);m_dataCounter+=5;
              }
             break;
             }
 
         if(++m_counterToRead >= 20)m_counterToRead =0;
-        if(m_dataCounter >= 60){emit SIGNAL_handleReconnect();m_dataCounter = 0;}
+        //if(m_dataCounter >= 20){emit SIGNAL_handleReconnect();m_dataCounter = 0;}
 
     }
     else if(m_counterToWrite == 10)
