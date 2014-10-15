@@ -13,6 +13,7 @@
 #include <flashhelper.h>
 #include <QTimer>
 #include <QMutex>
+#include <requestmanager.h>
 class mainWidget;
 class MySerialPort :  public QThread
 {
@@ -31,6 +32,7 @@ private:
         QSerialPortInfo *infoPort;
         SerialWrite _serialWrite;
         serialRead _serialRead;
+        requestmanager _requestmanager;
         FlashHelper _flash;
         QTimer _timerScan;
         QMutex m_mutex;

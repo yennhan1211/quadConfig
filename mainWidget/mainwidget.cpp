@@ -1386,7 +1386,6 @@ void mainWidget::animationWhenTabChanged(int tabIndex)
     }
     case TabSensor:
         list.append(ui->btnCalibAcc);
-        list.append(ui->label_7);
         list.append(ui->lbAnglePitchVal);
         list.append(ui->lbAngleRollVal);
         list.append(ui->lbAngleYawVal);

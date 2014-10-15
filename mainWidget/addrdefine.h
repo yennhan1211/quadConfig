@@ -65,6 +65,7 @@
 #define FLYMODE4_VAL 4
 #define FLYMODE5_VAL 5
 #define FLYMODE6_VAL 6
+#define FLYMODE7_VAL 7
 
 #define FLYMODE1_TEXT "Manual"
 #define FLYMODE2_TEXT "Altitude"
@@ -72,6 +73,7 @@
 #define FLYMODE4_TEXT "GPS No Altitude"
 #define FLYMODE5_TEXT "GPS-Smart"
 #define FLYMODE6_TEXT "Go Home"
+#define FLYMODE7_TEXT "Loiter"
 
 #define RX_ALE_ADDR 111
 #define RX_ELE_ADDR 112

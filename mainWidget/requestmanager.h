@@ -13,7 +13,11 @@ public:
 
 signals:
 
+
 public slots:
+    void SLOT_requestReadData(int,int);
+    void SLOT_dowhenConnect();
+    void SLOT_dowhenDisconnect();
 
 };
 
