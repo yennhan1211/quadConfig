@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Apollo.ico</file>
+    </qresource>
+</RCC>
