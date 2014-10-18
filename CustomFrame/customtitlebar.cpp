@@ -14,9 +14,10 @@ CustomTitlebar::CustomTitlebar(QWidget *parent) :
 #endif
     m_Close(CustomButton::BUTTON_CLOSE, this)
 {
+
     m_Title.setStyleSheet
             ("font-size:14px;font-weight:bold;color:#ecf0f1;alignment:center");
-
+    mWidgetType = 0;
     connect ( & m_Minimize, SIGNAL (clicked ()),
                 this, SLOT(Minimized ()));
 #ifdef FRAME_CAN_RESIZE
@@ -31,6 +32,11 @@ CustomTitlebar::CustomTitlebar(QWidget *parent) :
 CustomTitlebar::~CustomTitlebar()
 {
     delete m_Cache;
+}
+
+void CustomTitlebar::setWidgetType(int mType)
+{
+    mWidgetType = mType;
 }
 
 void CustomTitlebar::resizeEvent(QResizeEvent *event)
@@ -160,5 +166,5 @@ void CustomTitlebar::Quit()
 {
     QWidget *mainWidget = qobject_cast<QWidget*> (this->parent());
     mainWidget->hide();
-    qApp->quit();
+    if(mWidgetType == 0)qApp->quit();
 }

@@ -12,7 +12,7 @@ class CustomTitlebar : public QWidget
 public:
     explicit CustomTitlebar(QWidget *parent = 0);
     ~CustomTitlebar();
-
+    void setWidgetType(int mType);
 signals:
 
 protected:
@@ -33,6 +33,7 @@ private:
     QPixmap *m_Cache;
     QLabel m_Title;
     CustomButton m_Minimize;
+    int mWidgetType;
 #ifdef FRAME_CAN_RESIZE
     CustomButton m_Maximize;
 #endif

@@ -21,6 +21,7 @@
 #include <progressdialog.h>
 #include <vtinfoform.h>
 #include <counterlabel.h>
+#include <waypointform.h>
 namespace Ui {
 class mainWidget;
 }
@@ -60,6 +61,7 @@ protected:
    bool eventFilter(QObject *obj, QEvent *event);
 private:
     Ui::mainWidget *ui;
+        wayPointForm m_wpWidget;
         RxMonitorView *rxViewLeft;
         RxMonitorView *rxViewRight;
         MySerialPort *m_serialPort;
@@ -151,6 +153,7 @@ public slots:
         void SLOT_writecftoFc(int);
         void SLOT_emitWriteData(int*,int,int);
         void SLOT_restartTimer();
+        void SLOT_btnUpdate_Click();
 
 
 signals:

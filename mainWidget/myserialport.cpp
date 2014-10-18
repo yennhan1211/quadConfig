@@ -20,6 +20,7 @@ MySerialPort::MySerialPort(mainWidget *ui,QObject *parent): QThread(parent)
     connect(ui,SIGNAL(SIGNAL_needUpdateFlash(QString)),this,SLOT(SLOT_startUpdateFlash(QString)));
     connect(&_flash,SIGNAL(_flashProgressChanged(int)),ui,SLOT(SLOT_updateFlashPercent(int)));
     connect(&_flash,SIGNAL(_flashStatusChanged(int)),ui,SLOT(SLOT_updateFlashStatus(int)));
+
 }
 
 MySerialPort::~MySerialPort()

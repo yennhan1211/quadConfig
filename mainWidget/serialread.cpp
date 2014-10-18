@@ -90,6 +90,6 @@ void serialRead::SLOT_readByteFromBuffer()
         }
       }else{
             //qDebug() << "end read";
-            m_PortLock->unlock();}
-
+            m_PortLock->unlock();
+           }
 }

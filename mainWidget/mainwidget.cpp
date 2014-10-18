@@ -5,7 +5,7 @@
 #include <QToolTip>
 
 mainWidget::mainWidget(QWidget *parent) :
-    CustomFrame(parent),
+    CustomFrame(parent,0),
     ui(new Ui::mainWidget)
 {
     ui->setupUi(this);
@@ -14,6 +14,7 @@ mainWidget::mainWidget(QWidget *parent) :
     CustomFrame::setWindowTitleSize(1000,30);
     CustomFrame::setBackGroundImage(APP_BACKGROUND);
     CustomFrame::setWindowTitle(APP_TITLE);
+
     m_serialPort = new MySerialPort(this);
 
     initRxview();
@@ -269,6 +270,8 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
             ,SLOT(SLOT_writeValueToFc(QString,QHash<int,QObject*>)));
     connect(m_IO_config,SIGNAL(SIGNAL_emitPercentWrite(int)),m_WriteConfigDialog,SLOT(setProgressBarValue(int)));
     connect(ui->btnInfo,SIGNAL(clicked()),m_info,SLOT(SLOT_showForm()));
+
+    connect(ui->btnUpdate,SIGNAL(clicked()),this,SLOT(SLOT_btnUpdate_Click()));
 }
 
 void mainWidget::initWidgetToHash()
@@ -335,6 +338,8 @@ void mainWidget::initWidgetToHash()
     m_WidgetsIdHash.insert(SENSOR_YAW_ANGLE_ADDR,m_yawSensor);
     m_WidgetsIdHash.insert(CALIB_ACC_STATUS_ADDR,ui->lbCalibAccStt);
     m_WidgetsIdHash.insert(CALIB_MAG_STATUS_ADDR,ui->lbCalibMagStt);
+    m_WidgetsIdHash.insert(I2C_ERROR_ADDR,ui->lbSensorStatus);
+    m_WidgetsIdHash.insert(GPS_STATUS_ADDR,ui->lbGPSStatus);
 
 // gimbal tab
     m_WidgetsIdHash.insert(GIMBAL_ONOFF_ADDR,m_btnGimbalOnOffGroups);
@@ -1247,6 +1252,12 @@ void mainWidget::SLOT_restartTimer()
     m_WriteConfigDialog->hideDialog();
 }
 
+void mainWidget::SLOT_btnUpdate_Click()
+{
+    //m_wpWidget = new wayPointForm();
+    m_wpWidget.show();
+}
+
 bool mainWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::HoverEnter)
@@ -1489,6 +1500,14 @@ void mainWidget::SLOT_updateUI(int *data,int len,int addr)
               QString tmps = QString::number(data[i])+" Cells";
               qvtmp = tmps;
           }
+          else if(obj == ui->lbSensorStatus){
+              if(data[i] == 1)qvtmp = "Compass Error!";else qvtmp = "No Error !";
+          }
+          else if(obj == ui->lbGPSStatus){
+              if(data[i] == 1)qvtmp = "2D Fix !";
+              else if (data[i] == 2)qvtmp = "3D Fix !";
+              else qvtmp = "No Fix !";
+          }
           else if(obj == ui->lbHWVer || obj == ui->lbSWVer){
               if(data[i] > 255){data[i] &= 255;data[i] *= 10;}
               QString tmps1 = QString::number(data[i]/100)+"."+QString::number((data[i]/10)%10)+"."+QString::number(data[i]%10);
@@ -1551,7 +1570,9 @@ void mainWidget::SLOT_emitSIGNALtoRead()
             break;
         case TabSensor:
              if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter+=5;}
-           else  emit SIGNAL_requestReadData(SENSOR_ROLL_ANGLE_ADDR,3);
+             else if(m_counterToRead == 10){ emit SIGNAL_requestReadData(I2C_ERROR_ADDR,1);m_dataCounter+=5;}
+             else if(m_counterToRead == 5){ emit SIGNAL_requestReadData(GPS_STATUS_ADDR,1);m_dataCounter+=5;}
+             else  emit SIGNAL_requestReadData(SENSOR_ROLL_ANGLE_ADDR,3);
         case TabGimbal:
              if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GIMBAL_ONOFF_ADDR,9);m_dataCounter+=5;}
             break;

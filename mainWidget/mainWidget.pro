@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     serialread.cpp \
     serialWrite.cpp \
     flashhelper.cpp \
-    requestmanager.cpp
+    requestmanager.cpp \
+    waypointform.cpp
 
 HEADERS  += mainwidget.h \
     myserialport.h \
@@ -28,9 +29,11 @@ HEADERS  += mainwidget.h \
     serialWrite.h \
     mystring.h \
     flashhelper.h \
-    requestmanager.h
+    requestmanager.h \
+    waypointform.h
 
-FORMS    += mainwidget.ui
+FORMS    += mainwidget.ui \
+    waypointform.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/release/ -lcustomframe
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/debug/ -lcustomframe

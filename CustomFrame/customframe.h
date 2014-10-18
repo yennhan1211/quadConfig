@@ -13,7 +13,13 @@ class CUSTOMFRAMESHARED_EXPORT CustomFrame : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CustomFrame(QWidget *parent = 0);
+    enum CustomWidgetType
+    {
+        mMainWidget = 0,
+        mSubWidget = 1
+    };
+
+    explicit CustomFrame(QWidget *parent = 0,int WidgetType = 0);
     virtual ~CustomFrame();
     QString getBackgroundColorHexCode() const;
 
@@ -22,7 +28,6 @@ public:
     void setWindowSize(int width, int height);
     void setWindowTitleSize(int width, int height);
     void setBackGroundImage(const QString &path);
-
 signals:
     void WindowTitleChanged(const QString&);
 
@@ -40,8 +45,8 @@ private:
     QSizeGrip m_SizeGrip;
     QString backgroundColorHexCode;
     QString imagePath;
-
     void CenterOnScreen();
 };
+
 
 #endif // CUSTOMFRAME_H

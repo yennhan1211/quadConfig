@@ -4,12 +4,14 @@
 
 #include "customframe.h"
 
-CustomFrame::CustomFrame(QWidget *parent) :
+CustomFrame::CustomFrame(QWidget *parent,int WidgetType) :
     QWidget(parent),
     m_SizeGrip(this),
     m_Cache(new QPixmap),
+
     m_TitleBar(this)
 {
+    m_TitleBar.setWidgetType(WidgetType);
     m_TitleBar.move(0, 0);
 
     m_SizeGrip.setStyleSheet("image: none");
@@ -163,7 +165,6 @@ void CustomFrame::setBackGroundImage(const QString &path)
 {
     imagePath = path;
 }
-
 
 void CustomFrame::CenterOnScreen()
 {
