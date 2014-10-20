@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <customframe.h>
+#include <QWebView>
 namespace Ui {
 class wayPointForm;
 }
@@ -17,6 +18,7 @@ public:
 
 private:
     Ui::wayPointForm *ui;
+    QWebView *m_webView;
 };
 
 #endif // WAYPOINTFORM_H

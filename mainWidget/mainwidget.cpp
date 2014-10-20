@@ -235,15 +235,16 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(rxViewLeft,SIGNAL(_sensorValueChanged(int,int)),this,SLOT(SLOT_displayLabelFromRxView(int,int)));
     connect(rxViewRight,SIGNAL(_sensorValueChanged(int,int)),this,SLOT(SLOT_displayLabelFromRxView(int,int)));
 
-    connect(ui->le_gps_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_gps_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_gps_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm_2,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm_3,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
+    connect(ui->le_gps_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_gps_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_gps_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm_2,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm_3,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->leMinAlt,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
 
     connect(ui->le_gps_x,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->le_gps_y,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
@@ -254,7 +255,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(ui->lePerAlarm,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->lePerAlarm_2,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->lePerAlarm_3,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
-
+    connect(ui->leMinAlt,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
 
     connect(m_IO_config,SIGNAL(SIGNAL_updateUiFromFile(int*,int,int)),this,SLOT(SLOT_updateUI(int*,int,int)));
     connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(SLOT_saveConfigToFile()));
@@ -331,6 +332,7 @@ void mainWidget::initWidgetToHash()
     m_WidgetsIdHash.insert(VALARM_1_ADDR,ui->lePerAlarm);
     m_WidgetsIdHash.insert(VALARM_2_ADDR,ui->lePerAlarm_2);
     m_WidgetsIdHash.insert(VALARM_3_ADDR,ui->lePerAlarm_3);
+    m_WidgetsIdHash.insert(MIN_ALT_GOHOME_ADDR,ui->leMinAlt);
 
 // sensor tab
     m_WidgetsIdHash.insert(SENSOR_ROLL_ANGLE_ADDR,m_rollSensor);
@@ -588,6 +590,7 @@ void mainWidget::initWidgetValue()
     ui->le_imu_x->setValidator(new QIntValidator(-50,50));
     ui->le_imu_y->setValidator(new QIntValidator(-50,50));
     ui->le_imu_z->setValidator(new QIntValidator(-50,50));
+    ui->leMinAlt->setValidator(new QIntValidator(0,30));
     ui->frameTranmister->hide();
     ui->rbXbus->hide();
 
@@ -1126,22 +1129,25 @@ void mainWidget::SLOT_getDataWritelineEditFinish()
         const QIntValidator *bvt = qobject_cast<const QIntValidator* > (qpb->validator());
         if(bvt->bottom() == -50)
         m_dataWrite[0] =   qpb->text().toInt() + 50;
+        else if(bvt->bottom() == 0){
+              if(qpb == ui->leMinAlt)m_dataWrite[0] =ui->leMinAlt->text().toInt() ;
+        }
         else {
             if(qpb == ui->lePerAlarm && qpb->text().toInt() < ui->lePerAlarm_2->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm_2->text().toInt() ;
-                ui->lePerAlarm ->setText( ui->lePerAlarm_2->text());
+                ui->lePerAlarm ->setText(ui->lePerAlarm_2->text());
                 //qDebug() << "-> 1";
             }else if(qpb == ui->lePerAlarm_2 && qpb->text().toInt() < ui->lePerAlarm_3->text().toInt()){
                     m_dataWrite[0] =   ui->lePerAlarm_3->text().toInt() ;
-                    ui->lePerAlarm_2 ->setText( ui->lePerAlarm_3->text());
+                    ui->lePerAlarm_2 ->setText(ui->lePerAlarm_3->text());
                      //qDebug() << "-> 2";
             }else if(qpb == ui->lePerAlarm_2 && qpb->text().toInt() > ui->lePerAlarm->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm->text().toInt() ;
-                ui->lePerAlarm_2 ->setText( ui->lePerAlarm->text());
+                ui->lePerAlarm_2 ->setText(ui->lePerAlarm->text());
                  //qDebug() << "-> 3";
             }else if(qpb == ui->lePerAlarm_3 && qpb->text().toInt() > ui->lePerAlarm_2->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm_2->text().toInt() ;
-                ui->lePerAlarm_3 ->setText( ui->lePerAlarm_2->text());
+                ui->lePerAlarm_3 ->setText(ui->lePerAlarm_2->text());
                 // qDebug() << "-> 4";
                     }
             else  m_dataWrite[0] =   qpb->text().toInt() ;
@@ -1182,7 +1188,7 @@ void mainWidget::SLOT_displayLabelFromRxView(int x, int y)
     }
 }
 
-void mainWidget::SLOT_getetObjFocus()
+void mainWidget::SLOT_getObjFocus()
 {
     if(sender() != m_objFocus){
     showTooltips();
@@ -1304,12 +1310,13 @@ void mainWidget::SLOT_moveImageCheckedFromButtonId(int bttId, bool bttCheck)
 void mainWidget::SLOT_changeDescriptionWhenEnter(QObject *obj)
 {
     QString strtmp(obj->metaObject()->className());
-    if(strtmp =="QPushButton" ){
+    if(strtmp == "QPushButton" ){
        ui->lbDescep->setPixmap(*(m_pixmapHash[obj]));
        ui->txtFrameDes->setSource(QUrl(m_Des[obj]));
     }
-    else if(strtmp =="QRadioButton")ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[obj]));
-
+    else if(strtmp == "QRadioButton"){
+        ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[obj]));
+    }
 }
 
 void mainWidget::SLOT_changeDescriptionWhenLeave(QObject *obj)
@@ -1319,8 +1326,9 @@ void mainWidget::SLOT_changeDescriptionWhenLeave(QObject *obj)
        ui->lbDescep->setPixmap(*(m_pixmapHash[m_btnConfigFrameGroups->checkedButton()]));
        ui->txtFrameDes->setSource(QUrl(m_Des[m_btnConfigFrameGroups->checkedButton()]));
     }
-    else if(strtmp =="QRadioButton")
-        ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[m_btnFaisafeActionGroups->checkedButton()]));
+    else if(strtmp =="QRadioButton"){
+       ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[m_btnFaisafeActionGroups->checkedButton()]));
+    }
 }
 
 void mainWidget::animationWhenTabChanged(int tabIndex)
@@ -1562,11 +1570,14 @@ void mainWidget::SLOT_emitSIGNALtoRead()
         case TabAuto:
              if(m_counterToRead == 0){
                  emit SIGNAL_requestReadData(GOHOME_SPEED_ADDR,3);
-                 SLEEP(25)
+                 SLEEP(15)
                  emit SIGNAL_requestReadData(VALARM_1_ADDR,3);
+                 SLEEP(10)
+                 emit SIGNAL_requestReadData(MIN_ALT_GOHOME_ADDR,1);
                  m_dataCounter +=5;
 
-             }else emit SIGNAL_requestReadData(VBAT_ADDR,4);
+             }
+             else emit SIGNAL_requestReadData(VBAT_ADDR,4);
             break;
         case TabSensor:
              if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter+=5;}
@@ -1609,6 +1620,8 @@ void mainWidget::readAllValue()
     emit SIGNAL_requestReadData(VALARM_1_ADDR,3);
     SLEEP(40)
     emit SIGNAL_requestReadData(VBAT_ADDR,4);
+    SLEEP(40)
+    emit SIGNAL_requestReadData(MIN_ALT_GOHOME_ADDR,1);
     SLEEP(40)
     emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);
     SLEEP(40)

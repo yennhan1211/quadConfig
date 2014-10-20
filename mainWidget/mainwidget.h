@@ -147,7 +147,7 @@ public slots:
         void SLOT_txModeChange(int,bool);
         void SLOT_getDataWritelineEditFinish();
         void SLOT_displayLabelFromRxView(int,int);
-        void SLOT_getetObjFocus();
+        void SLOT_getObjFocus();
         void SLOT_saveConfigToFile();
         void SLOT_openConfigFile();
         void SLOT_writecftoFc(int);

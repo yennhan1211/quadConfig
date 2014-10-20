@@ -10,6 +10,8 @@ wayPointForm::wayPointForm(QWidget *parent) :
     QDesktopWidget qDesk;
     CustomFrame::setWindowSize(qDesk.width()-100,qDesk.height()-100);
     CustomFrame::setWindowTitleSize(qDesk.width()-100,30);
+    m_webView = new QWebView(this);
+
 }
 
 wayPointForm::~wayPointForm()
