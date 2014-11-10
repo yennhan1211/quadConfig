@@ -276,20 +276,30 @@ void MySerialPort::SLOT_HandleReconnect()
 
 void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
 {
+    int tmpFlag = 0;
     if (! connectStatus) { // neu port chua connect, flash cu bi hong, hoac chua connect nhung van nap flash
             if(_timerScan.isActive())_timerScan.stop();
-            foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-            {
-                if (info.vendorIdentifier() == FBL_VENDOR_ID
-                        || info.productIdentifier() == FBL_PRODUCT_ID) {
+                    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+                    {
+                        if ((info.vendorIdentifier() == QUAD_VENDOR_ID && info.productIdentifier() == QUAD_PRODUCT_ID)||
+                            (info.vendorIdentifier() == FBL_VENDOR_ID  && info.productIdentifier() == FBL_PRODUCT_ID)) {
 
-                QSerialPort *port = new QSerialPort(info);
-                if (openPort(port)) {
-                    myport = port;
-                    break;
-                  } else   delete port;
-                }
-            }
+                        QSerialPort *port = new QSerialPort(info);
+                        if (openPort(port)) {
+                            myport = port;
+                            tmpFlag = 1;// tim thay port va mo duoc
+                            break;
+                          }
+                        else{
+                            delete port;
+                            }
+                        }
+                    }
+             if(!tmpFlag){
+                  if(!_timerScan.isActive())_timerScan.start();
+                  _flash.emitFlashStatus(FlashHelper::NotFoundDevice);
+                  return;
+             }
         }
         else {
             disconnect(myport, SIGNAL(readyRead()), 0, 0);
@@ -305,15 +315,6 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
         // disconnect port va thu connect lai de test firmware moi
         this->tryToHandleError();
         qDebug() << "flashstatus ->" << m_flashstatus;
-//        // thu connect lai port
-//        this->checkDevice();
-
-//        if (connectStatus) {
-//            _flash.emitFlashStatus(FlashHelper::FlashOk);
-//        }
-//        else {
-//            _flash.emitFlashStatus(FlashHelper::FlashError);
-//        }
 }
 
 void MySerialPort::SLOT_eventWmiChange(int wmiStatus)

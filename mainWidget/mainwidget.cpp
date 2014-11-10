@@ -891,8 +891,6 @@ void mainWidget::SLOT_btnFlashUpdate_button_clicked()
          tr("Firmware Files (*.vtk)"));
 
      if (! filePath.isNull() && ! filePath.isEmpty()) {
-//         updateLabelFlashStatus(FLASH_START);
-//         ui->btns->setEnabled(false);
          if (m_connect) {
              this->doWhenDisconnect();
          }
@@ -938,6 +936,9 @@ void mainWidget::SLOT_updateFlashStatus(int status)
             break;
         case FlashHelper::FlashOk:
             updateLabelFlashStatus(FLASH_OK);
+            break;
+        case FlashHelper::NotFoundDevice:
+            updateLabelFlashStatus(FLASH_NOTFOUND_DEVICE);
             break;
     }
 }

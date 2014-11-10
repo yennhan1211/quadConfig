@@ -35,7 +35,7 @@
 
 #define FLASH_OK "Update firmware successfully"
 #define FLASH_ERROR "Update firmware failed"
-
+#define FLASH_NOTFOUND_DEVICE "Not found device"
 
 
 #define QUADROTOR_X_DES_URL "doc/Aircraft_QuadRotorX.html"
