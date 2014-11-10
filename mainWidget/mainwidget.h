@@ -48,6 +48,7 @@ public:
     void initTooltips();
     void initRxview();
     void initSensorview();
+    void initEventFilter();
 protected:
    enum Tabs{
         TabRx = 0,
@@ -61,7 +62,7 @@ protected:
    bool eventFilter(QObject *obj, QEvent *event);
 private:
     Ui::mainWidget *ui;
-        wayPointForm m_wpWidget;
+        wayPointForm *m_wpWidget;
         RxMonitorView *rxViewLeft;
         RxMonitorView *rxViewRight;
         MySerialPort *m_serialPort;
@@ -154,6 +155,7 @@ public slots:
         void SLOT_emitWriteData(int*,int,int);
         void SLOT_restartTimer();
         void SLOT_btnUpdate_Click();
+        void SLOT_lineEditLoseFocus(QObject* obj);
 
 
 signals:

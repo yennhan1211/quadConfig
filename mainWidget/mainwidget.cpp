@@ -26,6 +26,7 @@ mainWidget::mainWidget(QWidget *parent) :
     initConnectionsSIGNALtoSLOT();
     initWidgetValue();
     intDefaultValue();  
+    initEventFilter();
     m_serialPort->start();
     initTimer();
 
@@ -257,6 +258,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(ui->lePerAlarm_3,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->leMinAlt,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
 
+
     connect(m_IO_config,SIGNAL(SIGNAL_updateUiFromFile(int*,int,int)),this,SLOT(SLOT_updateUI(int*,int,int)));
     connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(SLOT_saveConfigToFile()));
     connect(ui->btnOpen,SIGNAL(clicked()),this,SLOT(SLOT_openConfigFile()));
@@ -429,6 +431,7 @@ void mainWidget::initWidgetToHash()
     m_widgettoWrite.insert(VALARM_1_ADDR,ui->lePerAlarm);
     m_widgettoWrite.insert(VALARM_2_ADDR,ui->lePerAlarm_2);
     m_widgettoWrite.insert(VALARM_3_ADDR,ui->lePerAlarm_3);
+    m_widgettoWrite.insert(MIN_ALT_GOHOME_ADDR,ui->leMinAlt);
 
     m_widgettoWrite.insert(FLYMODE1_ADDR,ui->cbFlymode1);
     m_widgettoWrite.insert(FLYMODE2_ADDR,ui->cbFlymode2);
@@ -1194,7 +1197,7 @@ void mainWidget::SLOT_getObjFocus()
     showTooltips();
     m_objFocus = sender();
     line_edit_value_last = 0;
-    qDebug() << m_objFocus ;
+    qDebug() << "obj->" <<m_objFocus ;
     }
 }
 
@@ -1260,8 +1263,16 @@ void mainWidget::SLOT_restartTimer()
 
 void mainWidget::SLOT_btnUpdate_Click()
 {
-    //m_wpWidget = new wayPointForm();
-    m_wpWidget.show();
+    if(m_wpWidget != NULL)
+    m_wpWidget = new wayPointForm();
+    m_wpWidget->show();
+}
+
+void mainWidget::SLOT_lineEditLoseFocus(QObject* obj)
+{
+    qDebug() << "focus out" << obj;
+    if(m_UpdateUi == false)m_UpdateUi = true;
+    if(m_objFocus ==  obj){m_objFocus = NULL;hideTooltips();}
 }
 
 bool mainWidget::eventFilter(QObject *obj, QEvent *event)
@@ -1279,6 +1290,12 @@ bool mainWidget::eventFilter(QObject *obj, QEvent *event)
         if(strtmp =="QPushButton" || strtmp =="QRadioButton" ){
            SLOT_changeDescriptionWhenLeave(obj);
         }
+    }
+    else if(event->type() == QEvent::FocusOut)
+    {
+        QString strtmp(obj->metaObject()->className());
+        if(strtmp == "QLineEdit")
+         SLOT_lineEditLoseFocus(obj);
     }
     return false;
 }
@@ -1706,4 +1723,13 @@ void mainWidget::initSensorview()
     m_yawSensor->setPitchPixmapUrl("");
     m_yawSensor->show();
 }
+
+void mainWidget::initEventFilter()
+{
+    foreach (QObject* k, m_widgettoWrite.values()) {
+            QLineEdit *tmp = qobject_cast<QLineEdit*>(k);
+            if(tmp)tmp->installEventFilter(this);
+    }
+}
+
 
