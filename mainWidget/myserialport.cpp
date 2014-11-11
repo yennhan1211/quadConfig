@@ -324,8 +324,9 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
 
 void MySerialPort::SLOT_Flashfinish(int status)
 {
-    if(status == 0)
+    if(status == 0 || status == 20){
     this->tryToHandleError();
+    }
     else if(status == 10){
         _flash.setPort(NULL);
         _flash.setMutex(NULL);

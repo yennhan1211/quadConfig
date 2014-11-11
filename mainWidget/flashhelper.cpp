@@ -225,6 +225,7 @@ void FlashHelper::SLOT_ReadByteFromBuffer()
                                 break;
                         case 0x03:
                                 int percent = tmpData * 100 * mBuffSize / mFileLen;
+                                emit _flashProgressChanged(percent);
                                 qDebug() << "Percent erase " << percent;
                                 break;
                         }
@@ -252,7 +253,7 @@ void FlashHelper::SLOT_timeOut()
         responFlag = false;
     }
     else timeOutToRespon++;
-    if(timeOutToRespon >= 40){
+    if(timeOutToRespon >= 20){
 
         responFlag = false;
         if(mTimer.isActive())mTimer.stop();
