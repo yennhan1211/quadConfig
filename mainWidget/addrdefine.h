@@ -65,6 +65,7 @@
 #define FLYMODE4_VAL 4
 #define FLYMODE5_VAL 5
 #define FLYMODE6_VAL 6
+#define FLYMODE7_VAL 7
 
 #define FLYMODE1_TEXT "Manual"
 #define FLYMODE2_TEXT "Altitude"
@@ -72,6 +73,7 @@
 #define FLYMODE4_TEXT "GPS No Altitude"
 #define FLYMODE5_TEXT "GPS-Smart"
 #define FLYMODE6_TEXT "Go Home"
+#define FLYMODE7_TEXT "Loiter"
 
 #define RX_ALE_ADDR 111
 #define RX_ELE_ADDR 112
@@ -86,6 +88,9 @@
 #define SENSOR_YAW_ANGLE_ADDR 503
 #define CALIB_ACC_STATUS_ADDR 510
 #define CALIB_MAG_STATUS_ADDR 511
+
+#define I2C_ERROR_ADDR 508
+#define GPS_STATUS_ADDR 600
 
 #define FRAME_TYPE_ADDR 201
 #define FRAME_SIZE_ADDR 202
@@ -123,6 +128,8 @@
 #define VALARM_1_ADDR 426
 #define VALARM_2_ADDR 427
 #define VALARM_3_ADDR 428
+
+#define MIN_ALT_GOHOME_ADDR 400
 
 #define FAILSAFE_ACTION_GOHOME 3
 #define FAILSAFE_ACTION_LANDING 1

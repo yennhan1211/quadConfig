@@ -22,6 +22,7 @@ MySerialPort::MySerialPort(mainWidget *ui,QObject *parent): QThread(parent)
     connect(&_flash,SIGNAL(_flashProgressChanged(int)),ui,SLOT(SLOT_updateFlashPercent(int)));
     connect(&_flash,SIGNAL(_flashStatusChanged(int)),ui,SLOT(SLOT_updateFlashStatus(int)));
     connect(&_flash,SIGNAL(_flashFinish(int)),this,SLOT(SLOT_Flashfinish(int)));
+
 }
 
 MySerialPort::~MySerialPort()
@@ -334,6 +335,7 @@ void MySerialPort::SLOT_Flashfinish(int status)
         readAction(READ_BYTE);
         emit SIGNAL_connectStatus(true);
     }
+
 }
 
 void MySerialPort::SLOT_eventWmiChange(int wmiStatus)

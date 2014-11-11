@@ -5,7 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui\
-            serialport
+            serialport\
+            webkitwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,7 +19,9 @@ SOURCES += main.cpp\
     myserialport.cpp \
     serialread.cpp \
     serialWrite.cpp \
-    flashhelper.cpp
+    flashhelper.cpp \
+    requestmanager.cpp \
+    waypointform.cpp
 
 HEADERS  += mainwidget.h \
     myserialport.h \
@@ -26,9 +29,12 @@ HEADERS  += mainwidget.h \
     serialread.h \
     serialWrite.h \
     mystring.h \
-    flashhelper.h
+    flashhelper.h \
+    requestmanager.h \
+    waypointform.h
 
-FORMS    += mainwidget.ui
+FORMS    += mainwidget.ui \
+    waypointform.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/release/ -lcustomframe
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/debug/ -lcustomframe

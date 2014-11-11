@@ -5,7 +5,7 @@
 #include <QToolTip>
 
 mainWidget::mainWidget(QWidget *parent) :
-    CustomFrame(parent),
+    CustomFrame(parent,0),
     ui(new Ui::mainWidget)
 {
     ui->setupUi(this);
@@ -14,6 +14,7 @@ mainWidget::mainWidget(QWidget *parent) :
     CustomFrame::setWindowTitleSize(1000,30);
     CustomFrame::setBackGroundImage(APP_BACKGROUND);
     CustomFrame::setWindowTitle(APP_TITLE);
+
     m_serialPort = new MySerialPort(this);
 
     initRxview();
@@ -25,6 +26,7 @@ mainWidget::mainWidget(QWidget *parent) :
     initConnectionsSIGNALtoSLOT();
     initWidgetValue();
     intDefaultValue();  
+    initEventFilter();
     m_serialPort->start();
     initTimer();
 
@@ -234,15 +236,16 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(rxViewLeft,SIGNAL(_sensorValueChanged(int,int)),this,SLOT(SLOT_displayLabelFromRxView(int,int)));
     connect(rxViewRight,SIGNAL(_sensorValueChanged(int,int)),this,SLOT(SLOT_displayLabelFromRxView(int,int)));
 
-    connect(ui->le_gps_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_gps_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_gps_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->le_imu_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm_2,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
-    connect(ui->lePerAlarm_3,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getetObjFocus()));
+    connect(ui->le_gps_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_gps_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_gps_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_x,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_y,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->le_imu_z,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm_2,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->lePerAlarm_3,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
+    connect(ui->leMinAlt,SIGNAL(textEdited(QString)),this,SLOT(SLOT_getObjFocus()));
 
     connect(ui->le_gps_x,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->le_gps_y,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
@@ -253,6 +256,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(ui->lePerAlarm,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->lePerAlarm_2,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
     connect(ui->lePerAlarm_3,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
+    connect(ui->leMinAlt,SIGNAL(editingFinished()),this,SLOT(SLOT_getDataWritelineEditFinish()));
 
 
     connect(m_IO_config,SIGNAL(SIGNAL_updateUiFromFile(int*,int,int)),this,SLOT(SLOT_updateUI(int*,int,int)));
@@ -269,6 +273,8 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
             ,SLOT(SLOT_writeValueToFc(QString,QHash<int,QObject*>)));
     connect(m_IO_config,SIGNAL(SIGNAL_emitPercentWrite(int)),m_WriteConfigDialog,SLOT(setProgressBarValue(int)));
     connect(ui->btnInfo,SIGNAL(clicked()),m_info,SLOT(SLOT_showForm()));
+
+    connect(ui->btnUpdate,SIGNAL(clicked()),this,SLOT(SLOT_btnUpdate_Click()));
 }
 
 void mainWidget::initWidgetToHash()
@@ -328,6 +334,7 @@ void mainWidget::initWidgetToHash()
     m_WidgetsIdHash.insert(VALARM_1_ADDR,ui->lePerAlarm);
     m_WidgetsIdHash.insert(VALARM_2_ADDR,ui->lePerAlarm_2);
     m_WidgetsIdHash.insert(VALARM_3_ADDR,ui->lePerAlarm_3);
+    m_WidgetsIdHash.insert(MIN_ALT_GOHOME_ADDR,ui->leMinAlt);
 
 // sensor tab
     m_WidgetsIdHash.insert(SENSOR_ROLL_ANGLE_ADDR,m_rollSensor);
@@ -335,6 +342,8 @@ void mainWidget::initWidgetToHash()
     m_WidgetsIdHash.insert(SENSOR_YAW_ANGLE_ADDR,m_yawSensor);
     m_WidgetsIdHash.insert(CALIB_ACC_STATUS_ADDR,ui->lbCalibAccStt);
     m_WidgetsIdHash.insert(CALIB_MAG_STATUS_ADDR,ui->lbCalibMagStt);
+    m_WidgetsIdHash.insert(I2C_ERROR_ADDR,ui->lbSensorStatus);
+    m_WidgetsIdHash.insert(GPS_STATUS_ADDR,ui->lbGPSStatus);
 
 // gimbal tab
     m_WidgetsIdHash.insert(GIMBAL_ONOFF_ADDR,m_btnGimbalOnOffGroups);
@@ -422,6 +431,7 @@ void mainWidget::initWidgetToHash()
     m_widgettoWrite.insert(VALARM_1_ADDR,ui->lePerAlarm);
     m_widgettoWrite.insert(VALARM_2_ADDR,ui->lePerAlarm_2);
     m_widgettoWrite.insert(VALARM_3_ADDR,ui->lePerAlarm_3);
+    m_widgettoWrite.insert(MIN_ALT_GOHOME_ADDR,ui->leMinAlt);
 
     m_widgettoWrite.insert(FLYMODE1_ADDR,ui->cbFlymode1);
     m_widgettoWrite.insert(FLYMODE2_ADDR,ui->cbFlymode2);
@@ -583,6 +593,7 @@ void mainWidget::initWidgetValue()
     ui->le_imu_x->setValidator(new QIntValidator(-50,50));
     ui->le_imu_y->setValidator(new QIntValidator(-50,50));
     ui->le_imu_z->setValidator(new QIntValidator(-50,50));
+    ui->leMinAlt->setValidator(new QIntValidator(0,30));
     ui->frameTranmister->hide();
     ui->rbXbus->hide();
 
@@ -603,6 +614,8 @@ void mainWidget::intDefaultValue()
     m_dataCounter = 0;
     m_BindAnimationFlag = true;
     m_ReadConfigFromFileFlag = false;
+    m_Boardresponse = true;
+    m_WriteFail = 0;
     lv1 = 0;lv2 = 0;lv3 =0;
     line_edit_value_last = 0;
 
@@ -1120,22 +1133,25 @@ void mainWidget::SLOT_getDataWritelineEditFinish()
         const QIntValidator *bvt = qobject_cast<const QIntValidator* > (qpb->validator());
         if(bvt->bottom() == -50)
         m_dataWrite[0] =   qpb->text().toInt() + 50;
+        else if(bvt->bottom() == 0){
+              if(qpb == ui->leMinAlt)m_dataWrite[0] =ui->leMinAlt->text().toInt() ;
+        }
         else {
             if(qpb == ui->lePerAlarm && qpb->text().toInt() < ui->lePerAlarm_2->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm_2->text().toInt() ;
-                ui->lePerAlarm ->setText( ui->lePerAlarm_2->text());
+                ui->lePerAlarm ->setText(ui->lePerAlarm_2->text());
                 //qDebug() << "-> 1";
             }else if(qpb == ui->lePerAlarm_2 && qpb->text().toInt() < ui->lePerAlarm_3->text().toInt()){
                     m_dataWrite[0] =   ui->lePerAlarm_3->text().toInt() ;
-                    ui->lePerAlarm_2 ->setText( ui->lePerAlarm_3->text());
+                    ui->lePerAlarm_2 ->setText(ui->lePerAlarm_3->text());
                      //qDebug() << "-> 2";
             }else if(qpb == ui->lePerAlarm_2 && qpb->text().toInt() > ui->lePerAlarm->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm->text().toInt() ;
-                ui->lePerAlarm_2 ->setText( ui->lePerAlarm->text());
+                ui->lePerAlarm_2 ->setText(ui->lePerAlarm->text());
                  //qDebug() << "-> 3";
             }else if(qpb == ui->lePerAlarm_3 && qpb->text().toInt() > ui->lePerAlarm_2->text().toInt()){
                 m_dataWrite[0] =   ui->lePerAlarm_2->text().toInt() ;
-                ui->lePerAlarm_3 ->setText( ui->lePerAlarm_2->text());
+                ui->lePerAlarm_3 ->setText(ui->lePerAlarm_2->text());
                 // qDebug() << "-> 4";
                     }
             else  m_dataWrite[0] =   qpb->text().toInt() ;
@@ -1176,13 +1192,13 @@ void mainWidget::SLOT_displayLabelFromRxView(int x, int y)
     }
 }
 
-void mainWidget::SLOT_getetObjFocus()
+void mainWidget::SLOT_getObjFocus()
 {
     if(sender() != m_objFocus){
     showTooltips();
     m_objFocus = sender();
     line_edit_value_last = 0;
-    qDebug() << m_objFocus ;
+    qDebug() << "obj->" <<m_objFocus ;
     }
 }
 
@@ -1246,6 +1262,20 @@ void mainWidget::SLOT_restartTimer()
     m_WriteConfigDialog->hideDialog();
 }
 
+void mainWidget::SLOT_btnUpdate_Click()
+{
+    if(m_wpWidget != NULL)
+    m_wpWidget = new wayPointForm();
+    m_wpWidget->show();
+}
+
+void mainWidget::SLOT_lineEditLoseFocus(QObject* obj)
+{
+    qDebug() << "focus out" << obj;
+    if(m_UpdateUi == false)m_UpdateUi = true;
+    if(m_objFocus ==  obj){m_objFocus = NULL;hideTooltips();}
+}
+
 bool mainWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::HoverEnter)
@@ -1261,6 +1291,12 @@ bool mainWidget::eventFilter(QObject *obj, QEvent *event)
         if(strtmp =="QPushButton" || strtmp =="QRadioButton" ){
            SLOT_changeDescriptionWhenLeave(obj);
         }
+    }
+    else if(event->type() == QEvent::FocusOut)
+    {
+        QString strtmp(obj->metaObject()->className());
+        if(strtmp == "QLineEdit")
+         SLOT_lineEditLoseFocus(obj);
     }
     return false;
 }
@@ -1292,12 +1328,13 @@ void mainWidget::SLOT_moveImageCheckedFromButtonId(int bttId, bool bttCheck)
 void mainWidget::SLOT_changeDescriptionWhenEnter(QObject *obj)
 {
     QString strtmp(obj->metaObject()->className());
-    if(strtmp =="QPushButton" ){
+    if(strtmp == "QPushButton" ){
        ui->lbDescep->setPixmap(*(m_pixmapHash[obj]));
        ui->txtFrameDes->setSource(QUrl(m_Des[obj]));
     }
-    else if(strtmp =="QRadioButton")ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[obj]));
-
+    else if(strtmp == "QRadioButton"){
+        ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[obj]));
+    }
 }
 
 void mainWidget::SLOT_changeDescriptionWhenLeave(QObject *obj)
@@ -1307,8 +1344,9 @@ void mainWidget::SLOT_changeDescriptionWhenLeave(QObject *obj)
        ui->lbDescep->setPixmap(*(m_pixmapHash[m_btnConfigFrameGroups->checkedButton()]));
        ui->txtFrameDes->setSource(QUrl(m_Des[m_btnConfigFrameGroups->checkedButton()]));
     }
-    else if(strtmp =="QRadioButton")
-        ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[m_btnFaisafeActionGroups->checkedButton()]));
+    else if(strtmp =="QRadioButton"){
+       ui->lbFailsafeDes->setPixmap(*(m_pixmapHash[m_btnFaisafeActionGroups->checkedButton()]));
+    }
 }
 
 void mainWidget::animationWhenTabChanged(int tabIndex)
@@ -1385,7 +1423,6 @@ void mainWidget::animationWhenTabChanged(int tabIndex)
     }
     case TabSensor:
         list.append(ui->btnCalibAcc);
-        list.append(ui->label_7);
         list.append(ui->lbAnglePitchVal);
         list.append(ui->lbAngleRollVal);
         list.append(ui->lbAngleYawVal);
@@ -1489,6 +1526,14 @@ void mainWidget::SLOT_updateUI(int *data,int len,int addr)
               QString tmps = QString::number(data[i])+" Cells";
               qvtmp = tmps;
           }
+          else if(obj == ui->lbSensorStatus){
+              if(data[i] == 1)qvtmp = "Compass Error!";else qvtmp = "No Error !";
+          }
+          else if(obj == ui->lbGPSStatus){
+              if(data[i] == 1)qvtmp = "2D Fix !";
+              else if (data[i] == 2)qvtmp = "3D Fix !";
+              else qvtmp = "No Fix !";
+          }
           else if(obj == ui->lbHWVer || obj == ui->lbSWVer){
               if(data[i] > 255){data[i] &= 255;data[i] *= 10;}
               QString tmps1 = QString::number(data[i]/100)+"."+QString::number((data[i]/10)%10)+"."+QString::number(data[i]%10);
@@ -1519,42 +1564,55 @@ void mainWidget::SLOT_emitSIGNALtoRead()
 {
     if(m_counterToWrite == 0){
 
+        if(m_dataCounter  < 10)
+        {
+       // qDebug() << "response";
+        } else {
+             emit SIGNAL_handleReconnect();m_dataCounter = 0;
+       //      qDebug() << " no response";
+             return;
+        }
         switch (ui->maintabWidget->currentIndex()) {
         case TabRx:
-            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FLYMODE1_ADDR,6);m_dataCounter += 20;}
+            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FLYMODE1_ADDR,6);m_dataCounter+=5;}
             else emit SIGNAL_requestReadData(RX_ALE_ADDR,7);
             break;
         case TabConfig:
-            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FRAME_TYPE_ADDR,9);m_dataCounter += 20;
+            if(m_counterToRead == 0){emit SIGNAL_requestReadData(FRAME_TYPE_ADDR,9);m_dataCounter +=5;
             }
             break;
         case TabGain:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GAIN_ROLL_ADDR,7);m_dataCounter += 20;
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GAIN_ROLL_ADDR,7);m_dataCounter +=5;
              }
             break;
         case TabAuto:
              if(m_counterToRead == 0){
                  emit SIGNAL_requestReadData(GOHOME_SPEED_ADDR,3);
-                 SLEEP(25)
+                 SLEEP(15)
                  emit SIGNAL_requestReadData(VALARM_1_ADDR,3);
-                 m_dataCounter += 20;
+                 SLEEP(10)
+                 emit SIGNAL_requestReadData(MIN_ALT_GOHOME_ADDR,1);
+                 m_dataCounter +=5;
 
-             }else emit SIGNAL_requestReadData(VBAT_ADDR,4);
+             }
+             else emit SIGNAL_requestReadData(VBAT_ADDR,4);
             break;
         case TabSensor:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter += 20;}
-           else  emit SIGNAL_requestReadData(SENSOR_ROLL_ANGLE_ADDR,3);
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);m_dataCounter+=5;}
+             else if(m_counterToRead == 10){ emit SIGNAL_requestReadData(I2C_ERROR_ADDR,1);m_dataCounter+=5;}
+             else if(m_counterToRead == 5){ emit SIGNAL_requestReadData(GPS_STATUS_ADDR,1);m_dataCounter+=5;}
+             else  emit SIGNAL_requestReadData(SENSOR_ROLL_ANGLE_ADDR,3);
         case TabGimbal:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GIMBAL_ONOFF_ADDR,9);m_dataCounter += 20;}
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(GIMBAL_ONOFF_ADDR,9);m_dataCounter+=5;}
             break;
         case TabFirmware:
-             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(HARDWARE_ADDR,3);m_dataCounter += 20;
+             if(m_counterToRead == 0){ emit SIGNAL_requestReadData(HARDWARE_ADDR,3);m_dataCounter+=5;
              }
             break;
             }
 
         if(++m_counterToRead >= 20)m_counterToRead =0;
-        if(m_dataCounter >= 60){emit SIGNAL_handleReconnect();m_dataCounter = 0;}
+        //if(m_dataCounter >= 20){emit SIGNAL_handleReconnect();m_dataCounter = 0;}
 
     }
     else if(m_counterToWrite == 10)
@@ -1580,6 +1638,8 @@ void mainWidget::readAllValue()
     emit SIGNAL_requestReadData(VALARM_1_ADDR,3);
     SLEEP(40)
     emit SIGNAL_requestReadData(VBAT_ADDR,4);
+    SLEEP(40)
+    emit SIGNAL_requestReadData(MIN_ALT_GOHOME_ADDR,1);
     SLEEP(40)
     emit SIGNAL_requestReadData(CALIB_ACC_STATUS_ADDR,2);
     SLEEP(40)
@@ -1664,4 +1724,13 @@ void mainWidget::initSensorview()
     m_yawSensor->setPitchPixmapUrl("");
     m_yawSensor->show();
 }
+
+void mainWidget::initEventFilter()
+{
+    foreach (QObject* k, m_widgettoWrite.values()) {
+            QLineEdit *tmp = qobject_cast<QLineEdit*>(k);
+            if(tmp)tmp->installEventFilter(this);
+    }
+}
+
 

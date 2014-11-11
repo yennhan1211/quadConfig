@@ -21,6 +21,7 @@
 #include <progressdialog.h>
 #include <vtinfoform.h>
 #include <counterlabel.h>
+#include <waypointform.h>
 namespace Ui {
 class mainWidget;
 }
@@ -47,6 +48,7 @@ public:
     void initTooltips();
     void initRxview();
     void initSensorview();
+    void initEventFilter();
 protected:
    enum Tabs{
         TabRx = 0,
@@ -60,6 +62,7 @@ protected:
    bool eventFilter(QObject *obj, QEvent *event);
 private:
     Ui::mainWidget *ui;
+        wayPointForm *m_wpWidget;
         RxMonitorView *rxViewLeft;
         RxMonitorView *rxViewRight;
         MySerialPort *m_serialPort;
@@ -105,6 +108,8 @@ private:
         bool m_connect;
         bool m_BindAnimationFlag;
         bool m_ReadConfigFromFileFlag;
+        bool m_Boardresponse;
+        int  m_WriteFail;
         int m_counterToWrite,m_addrWrite,m_lenWrite;
         int *m_dataWrite;
         int m_counterToRead;
@@ -143,12 +148,14 @@ public slots:
         void SLOT_txModeChange(int,bool);
         void SLOT_getDataWritelineEditFinish();
         void SLOT_displayLabelFromRxView(int,int);
-        void SLOT_getetObjFocus();
+        void SLOT_getObjFocus();
         void SLOT_saveConfigToFile();
         void SLOT_openConfigFile();
         void SLOT_writecftoFc(int);
         void SLOT_emitWriteData(int*,int,int);
         void SLOT_restartTimer();
+        void SLOT_btnUpdate_Click();
+        void SLOT_lineEditLoseFocus(QObject* obj);
 
 
 signals:
