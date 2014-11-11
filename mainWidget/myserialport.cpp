@@ -3,6 +3,7 @@
 
 
 MySerialPort::MySerialPort(mainWidget *ui,QObject *parent): QThread(parent)
+ ,_flash(NULL,this)
 {
     moveToThread(this);
     _timerScan.moveToThread(this);
@@ -20,6 +21,7 @@ MySerialPort::MySerialPort(mainWidget *ui,QObject *parent): QThread(parent)
     connect(ui,SIGNAL(SIGNAL_needUpdateFlash(QString)),this,SLOT(SLOT_startUpdateFlash(QString)));
     connect(&_flash,SIGNAL(_flashProgressChanged(int)),ui,SLOT(SLOT_updateFlashPercent(int)));
     connect(&_flash,SIGNAL(_flashStatusChanged(int)),ui,SLOT(SLOT_updateFlashStatus(int)));
+    connect(&_flash,SIGNAL(_flashFinish(int)),this,SLOT(SLOT_Flashfinish(int)));
 }
 
 MySerialPort::~MySerialPort()
@@ -246,11 +248,11 @@ void MySerialPort::checkDevice()// 12c4 ea12
                             qDebug() << "lock thread->" << &m_mutex;
                             startSerialReadWrite();
                             emit SIGNAL_connectStatus(true);
-                             if (m_flashstatus >= 2) {
-                                 qDebug() << "-> jum 10";
-                                 _flash.emitFlashStatus(FlashHelper::FlashOk);
-                                 m_flashstatus = 0;
-                                }
+//                             if (m_flashstatus >= 2) {
+//                                 qDebug() << "-> jum 10";
+//                                 _flash.emitFlashStatus(FlashHelper::FlashOk);
+//                                 m_flashstatus = 0;
+//                                }
                             break;
                         }
                         else                        
@@ -287,6 +289,7 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
                         QSerialPort *port = new QSerialPort(info);
                         if (openPort(port)) {
                             myport = port;
+                            connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
                             tmpFlag = 1;// tim thay port va mo duoc
                             break;
                           }
@@ -303,18 +306,33 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
         }
         else {
             disconnect(myport, SIGNAL(readyRead()), 0, 0);
+            connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
         }
 
         _flash.setFlashFilePath(filePath);
         _flash.setPort(myport);
-        _flash.updateFlash();
-        m_flashstatus = 10;
-        SLEEP(100)
-        // emit signal start try reconnect
-        _flash.emitFlashStatus(FlashHelper::StartReconnect);
-        // disconnect port va thu connect lai de test firmware moi
-        this->tryToHandleError();
-        qDebug() << "flashstatus ->" << m_flashstatus;
+        _flash.setMutex(&m_mutex);
+        _flash.updateFlashNew();
+//        m_flashstatus = 10;
+//        SLEEP(100)
+//        // emit signal start try reconnect
+//        _flash.emitFlashStatus(FlashHelper::StartReconnect);
+//        // disconnect port va thu connect lai de test firmware moi
+//        this->tryToHandleError();
+//        qDebug() << "flashstatus ->" << m_flashstatus;
+}
+
+void MySerialPort::SLOT_Flashfinish(int status)
+{
+    if(status == 0)
+    this->tryToHandleError();
+    else if(status == 10){
+        _flash.setPort(NULL);
+        _flash.setMutex(NULL);
+        readAction(READ_NONE);
+        readAction(READ_BYTE);
+        emit SIGNAL_connectStatus(true);
+    }
 }
 
 void MySerialPort::SLOT_eventWmiChange(int wmiStatus)

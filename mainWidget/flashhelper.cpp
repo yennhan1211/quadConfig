@@ -15,6 +15,11 @@ FlashHelper::FlashHelper(QSerialPort *port, QObject *parent) :
     mBuffSize = 0;
     mBuffLen = 0;
     mBuffType = 0;
+    responFlag = false;
+    timeOutToRespon = 0;
+    mTimer.moveToThread(qobject_cast<QThread*>(parent));
+    mTimer.setInterval(100);
+    connect(&mTimer,SIGNAL(timeout()),this,SLOT(SLOT_timeOut()));
     this->m_port = port;
 }
 
@@ -120,24 +125,43 @@ void FlashHelper::updateFlashNew()
     QFile file(m_flashFilePath);
     if (file.exists())
     {
+        file.open(QIODevice::ReadWrite);
         mByteToWrite = file.readAll();
+        file.close();
         mFileLen = mByteToWrite.length();
+        QByteArray tmpBuffLen;tmpBuffLen.resize(4);
+        tmpBuffLen[0] = (char)(mFileLen >> 24);
+        tmpBuffLen[1] = (char)((mFileLen >> 16) & 0xff);
+        tmpBuffLen[2] = (char)((mFileLen >> 8) & 0xff);
+        tmpBuffLen[3] = (char)(mFileLen & 0xff);
+
+        m_port->write("*goto3007\r");
+        m_port->waitForBytesWritten(50);
+        m_port->write("*boot2\r");
+        m_port->waitForBytesWritten(50);
+        qDebug() << "erase";
+        SLEEP(100)
+        writeByte(tmpBuffLen,0x01,0x01);
+        mTimer.start();
     }
     else
-        emit emitFlashStatus(FlashStatus::FileNotExist);
+        emit _flashStatusChanged(FileNotExist);
 }
 
 void FlashHelper::SLOT_ReadByteFromBuffer()
 {
+
         mPortLock->lock();
         if(!m_port || !m_port->isOpen())return;
         qint64 mNumOfByte = m_port->bytesAvailable();
-        if(mNumOfByte > 3){
+        //qDebug() << "jum in SLOT_ReadByteFromBuffer" << mNumOfByte;
+        if(mNumOfByte > 4){
             QByteArray mBuff = m_port->read(mNumOfByte);
             mPortLock->unlock();
             for(int pos = 0; pos < mBuff.size();pos++)
             {
                 unsigned char mData =(unsigned char)mBuff[pos];
+
                 switch (state) {
                 case 0: if (mData == 0xB5) state++; break;
                 case 1: if (mData == 0x62) state++; else state = 0; break;
@@ -148,26 +172,61 @@ void FlashHelper::SLOT_ReadByteFromBuffer()
                     if (cka == rcka && ckb == rckb)
                     {
                         int iFlashStt = 0;
+                        int tmpp = 0;
+                        QByteArray tmpBuff;
+                        responFlag = true;
                         switch (mId) {
                             case 0x01:
                                 switch(tmpData)
                                 {
-                                case 0x01: iFlashStt = FlashStatus::EraseFlashFail; break;
-                                case 0x02: iFlashStt = FlashStatus::EraseFlashFinished ; break;
-                                case 0x03: iFlashStt = FlashStatus::FlashOk;break;
+                                case 0x01: iFlashStt = EraseFlashFail;
+                                    qDebug() << "erase fail";
+                                    break;
+                                case 0x02: iFlashStt = EraseFlashFinished ;
+                                     qDebug() << "erase ok";
+                                    break;
+                                case 0x03:
+                                    qDebug() << "package" << tmpData;
+                                    //emit _flashFinish(0);
+                                    break;
                                 case 0x04:
                                             m_port->write("*flash\r");
-                                            iFlashStt = FlashStatus::FlashOk;
+                                            qDebug() << "flash ok";
+                                            iFlashStt = FlashOk;
+                                            if(mTimer.isActive())mTimer.stop();
+                                            emit _flashFinish(10);
                                             break;
-                                case 0x05: iFlashStt = FlashStatus::JumpFail;break;
-                                case 6: iFlashStt = FlashStatus::ToltalByteWRong;break;
+                                case 0x05: iFlashStt = JumpFail;break;
+                                case 6: iFlashStt = ToltalByteWRong;break;
                                 case 7: break;
                                 }
                                 break;
                         case 0x02:
-                                if ((mFileLen - tmpData * mBuff_size) > mBuff_size) mBuff_len = mBuff_size;
-                                else mBuff_len = mFileLen - tmpData * mBuff_size;
-                        break;
+                                if ((mFileLen - tmpData * mBuffSize) > mBuffSize) mBuffLen = mBuffSize;
+                                else mBuffLen = mFileLen - tmpData * mBuffSize;                            
+                                if (mBuffLen == mBuffSize)
+                                    tmpp = ((int)tmpData+1) * 100 * mBuffSize / mFileLen;
+                                else tmpp = (((int)tmpData ) * mBuffSize + mBuffLen) * 100 / mFileLen;
+                                 emit _flashProgressChanged(tmpp);
+                                 qDebug() << "Percent flash " << tmpp;
+                                tmpBuff.resize(mBuffLen);
+                                for(int i = 0; i < mBuffLen;i++)
+                                {
+                                    tmpBuff[i] = mByteToWrite[tmpData*mBuffSize + i];
+                                }
+                                writeByte(tmpBuff,0x02,tmpData);
+                                 break;
+                        case 0xaa:
+                                if(tmpData == 0x01)mBuffSize = 1024;
+                                else if(tmpData == 0x02)mBuffSize = 2048;
+                                break;
+                        case 0x04:
+                                qDebug() << "Current package error at" << tmpData;
+                                break;
+                        case 0x03:
+                                int percent = tmpData * 100 * mBuffSize / mFileLen;
+                                qDebug() << "Percent erase " << percent;
+                                break;
                         }
                        emit emitFlashStatus(iFlashStt);
                     }
@@ -184,6 +243,22 @@ void FlashHelper::SLOT_ReadByteFromBuffer()
 void FlashHelper::emitFlashStatus(int status)
 {
     emit _flashStatusChanged(status);
+}
+
+void FlashHelper::SLOT_timeOut()
+{
+    if(responFlag){
+        timeOutToRespon = 0;
+        responFlag = false;
+    }
+    else timeOutToRespon++;
+    if(timeOutToRespon >= 40){
+
+        responFlag = false;
+        if(mTimer.isActive())mTimer.stop();
+        emit _flashFinish(timeOutToRespon);
+        timeOutToRespon = 0;
+    }
 }
 
 void FlashHelper::write4Byte(QByteArray data, char mesClass, char mesID)

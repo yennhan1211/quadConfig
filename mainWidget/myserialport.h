@@ -54,6 +54,8 @@ public slots:
         void checkDevice();
         void SLOT_HandleReconnect();
         void SLOT_startUpdateFlash(const QString);
+        void SLOT_Flashfinish(int);
+
 signals:
         void SIGNAL_connectStatus(bool);
 };

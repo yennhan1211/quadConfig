@@ -66,8 +66,7 @@ else:unix: LIBS += -L$$OUT_PWD/../IOhelp/ -lIOhelp
 INCLUDEPATH += $$PWD/../IOhelp
 DEPENDPATH += $$PWD/../IOhelp
 
-RESOURCES += \
-    appicon.qrc
+
 
 
 RC_ICONS = Apollo.ico
