@@ -5,9 +5,9 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLineEdit>
-
+#include <QCryptographicHash>
 #include <QDebug>
-
+#include <QCryptographicHash>
 iohelper::iohelper( QObject *parent) :
   QThread(parent)
 {
@@ -67,7 +67,8 @@ iohelper::~iohelper()
                 second = (char)(value & 0xFF);
                 bytes.append(first).append(second);
     }
-
+            QByteArray mHash = QCryptographicHash::hash(bytes,QCryptographicHash::Md5);
+            bytes.append(mHash);
             file.write(bytes);
             file.flush();
             file.close();
@@ -142,6 +143,28 @@ void iohelper::SLOT_loadConfigFromFile(const QString &filePath, m_hash &widgetHa
        QFile file(filePath);
        int_hash.clear();
         if (file.exists() && file.open(QIODevice::ReadOnly)) {
+
+            QByteArray mByteOfFile = file.readAll();
+            QByteArray mHashFrom,mHashCalc,mData;
+            mHashFrom.resize(16);
+            mHashCalc.resize(16);
+            mData.resize(mByteOfFile.length() - 16);
+            for(int j = 0;j < mByteOfFile.length()-16;j++)mData[j]=mByteOfFile[j];
+            mHashCalc = QCryptographicHash::hash(mData,QCryptographicHash::Md5);
+            qDebug() << "md5 calc " << mHashCalc.toHex();
+            for(int i = 0;i <16 ;i++){
+                mHashFrom[i] = mByteOfFile[mByteOfFile.length() - 16 + i];
+            }
+            qDebug() << "md5 from " << mHashFrom.toHex();
+            if(mHashCalc == mHashFrom){
+                emit  SIGNAL_emitFileMatch(true);
+                qDebug() << "file match";
+            }
+            else {
+                emit  SIGNAL_emitFileMatch(false);
+                qDebug() << "file  not match";
+                return;
+            }
             char *buffer = new char[4];
             while (!file.atEnd()) {
                 qint64 bytesRead = file.read(buffer, 4);

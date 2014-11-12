@@ -262,6 +262,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(m_IO_config,SIGNAL(SIGNAL_updateUiFromFile(int*,int,int)),this,SLOT(SLOT_updateUI(int*,int,int)));
     connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(SLOT_saveConfigToFile()));
     connect(ui->btnOpen,SIGNAL(clicked()),this,SLOT(SLOT_openConfigFile()));
+    connect(m_IO_config,SIGNAL(SIGNAL_emitFileMatch(bool)),this,SLOT(SLOT_displayWriteConfigMess(bool)));
     connect(m_messbox_writetocf,SIGNAL(SIGNAL_stateChange(int)),this,SLOT(SLOT_writecftoFc(int)));
     connect(m_IO_config,SIGNAL(SIGNAL_emitWrite(int*,int,int)),this,SLOT(SLOT_emitWriteData(int*,int,int)));
     connect(m_IO_config,SIGNAL(SIGNAL_emitRestartTimer()),this,SLOT(SLOT_restartTimer()));
@@ -1226,9 +1227,6 @@ void mainWidget::SLOT_openConfigFile()
             m_serialPort->clearSIGNAL();
          }
     emit SIGNAL_emitLoadFile(filePath,m_widgettoWrite);   
-    m_messbox_writetocf->setMessage("Write all config to FC ?");
-    m_messbox_writetocf->showMe();
-    m_ReadConfigFromFileFlag = true;
      }
 }
 
@@ -1274,6 +1272,18 @@ void mainWidget::SLOT_lineEditLoseFocus(QObject* obj)
     qDebug() << "focus out" << obj;
     if(m_UpdateUi == false)m_UpdateUi = true;
     if(m_objFocus ==  obj){m_objFocus = NULL;hideTooltips();}
+}
+
+void mainWidget::SLOT_displayWriteConfigMess(bool stt)
+{
+    if(stt){
+        m_messbox_writetocf->setMessage("Write all config to FC ?");
+        m_messbox_writetocf->showMe();
+        m_ReadConfigFromFileFlag = true;
+    }
+    else {
+
+    }
 }
 
 bool mainWidget::eventFilter(QObject *obj, QEvent *event)

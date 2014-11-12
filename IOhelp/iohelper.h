@@ -26,6 +26,7 @@ signals:
    void SIGNAL_emitRestartTimer();
    void SIGNAL_emitErrorFile(int);
    void SIGNAL_emitPercentWrite(int);
+   void SIGNAL_emitFileMatch(bool);
 };
 
 #endif // IOHELPER_H

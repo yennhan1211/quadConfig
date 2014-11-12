@@ -156,7 +156,7 @@ public slots:
         void SLOT_restartTimer();
         void SLOT_btnUpdate_Click();
         void SLOT_lineEditLoseFocus(QObject* obj);
-
+        void SLOT_displayWriteConfigMess(bool);
 
 signals:
         void SIGNAL_requestWitreData(int*,int,int);
