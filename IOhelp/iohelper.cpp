@@ -165,18 +165,12 @@ void iohelper::SLOT_loadConfigFromFile(const QString &filePath, m_hash &widgetHa
                 qDebug() << "file  not match";
                 return;
             }
-            char *buffer = new char[4];
-            while (!file.atEnd()) {
-                qint64 bytesRead = file.read(buffer, 4);
-                if (bytesRead == 4){
-
-                    int key = (buffer[0] << 8) | (buffer[1] & 0x00FF);
-                    int value = (buffer[2] << 8) | (buffer[3] & 0x00FF);
-                    qDebug() << key << value;
-                    int_hash.insert(key, value);
-                }
+            for(int k = 0; k < mData.length() ;k += 4){
+                int key = (mData[k] << 8) | (mData[k+1] & 0x00FF);
+                int value = (mData[k+2] << 8) | (mData[k+3] & 0x00FF);
+                qDebug() << key << value;
+                int_hash.insert(key, value);
             }
-            delete[] buffer;
             file.close();
             // update Ui
            foreach (int key, widgetHash.keys()) {
