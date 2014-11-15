@@ -16,5 +16,6 @@ QVariant VtToggleButton::getValue() const
 void VtToggleButton::setValue(const QVariant &value)
 {
     QAbstractButton *btt = qobject_cast<QAbstractButton*> (view);   
+    if(btt == NULL)return;
     btt->setChecked(value.toBool());
 }

@@ -14,6 +14,7 @@ QVariant vtlabel::getValue() const
 void vtlabel::setValue(const QVariant &value)
 {
     QLabel *btt = qobject_cast<QLabel*> (view);
+    if(btt == NULL)return;
     if(value.toString() != btt->text())
         btt->setText(value.toString());
 }

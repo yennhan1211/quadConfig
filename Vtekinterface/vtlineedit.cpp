@@ -14,8 +14,9 @@ QVariant vtlineEdit::getValue() const
 void vtlineEdit::setValue(const QVariant &value)
 {
     QLineEdit *btt = qobject_cast<QLineEdit*> (view);
-
+    if(btt == NULL)return;
      const QIntValidator *bvt = qobject_cast<const QIntValidator* > (btt->validator());
+     if(bvt == NULL)return;
      int tmp = value.toInt();
      if(bvt->bottom() == -50)tmp = tmp - 50;
      if(QString::number(tmp) != btt->text())

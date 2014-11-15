@@ -16,6 +16,7 @@ QVariant VtComboBox::getValue() const
 void VtComboBox::setValue(const QVariant &value)
 {
     QComboBox *cbBox = qobject_cast<QComboBox*> (view);
+    if(cbBox == NULL)return;
     int val = value.toInt();
     for (int i = 0; i < cbBox->count(); i++) {
         if (cbBox->itemData(i) == val) {

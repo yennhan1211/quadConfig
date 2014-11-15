@@ -15,6 +15,7 @@ QVariant vtprogessbar::getValue() const
 void vtprogessbar::setValue(const QVariant &value)
 {
     QProgressBar *slider = qobject_cast<QProgressBar*> (view);
+    if(slider == NULL)return;
     int val = value.toInt();
     if(val != slider->value() && val >=0)
     {

@@ -17,6 +17,7 @@ QVariant VtButtonGroup::getValue() const
 void VtButtonGroup::setValue(const QVariant &value)
 {
     QButtonGroup *bg = qobject_cast<QButtonGroup*> (view);
+    if(bg == NULL)return;
     int id = value.toInt();
     QAbstractButton *btt = bg->button(id);
     if (btt != NULL) {
@@ -24,5 +25,5 @@ void VtButtonGroup::setValue(const QVariant &value)
         btt->setChecked(true);
       //  qDebug() << btt;
         }
-    }
+    }else return;
 }

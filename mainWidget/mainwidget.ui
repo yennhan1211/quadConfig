@@ -226,7 +226,7 @@ QComboBox::down-arrow {
  }</string>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="tabRx">
     <attribute name="title">
@@ -2991,7 +2991,7 @@ font-family:UTM-Avo;
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="lbVbat_2">
+    <widget class="QLabel" name="lbMinAlt">
      <property name="geometry">
       <rect>
        <x>70</x>

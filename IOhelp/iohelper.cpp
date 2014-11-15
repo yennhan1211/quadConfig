@@ -125,6 +125,7 @@ void iohelper::SLOT_writeValueToFc(const QString&,m_hash &widgetHash)
     int tmp_byte_write = 0;
     foreach (int addr, tmp_hash.keys()) {
          int *tmpint = new int[1];
+        if(tmpint == NULL)return;
         tmp_byte_write += 2;
         tmpint[0] = tmp_hash.value(addr);
         int tmp = tmp_byte_write*100 / total_bytes;
@@ -175,6 +176,7 @@ void iohelper::SLOT_loadConfigFromFile(const QString &filePath, m_hash &widgetHa
             // update Ui
            foreach (int key, widgetHash.keys()) {
                int *tmpint = new int[1];
+               if(tmpint == NULL)return;
                tmpint[0] = int_hash.value(key);
                emit SIGNAL_updateUiFromFile(tmpint,1,key);
            }

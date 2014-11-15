@@ -19,7 +19,7 @@ private:
     unsigned char counter ,r_cka ,r_ckb ;
     int addr ;
     QByteArray buffer;
-
+    qint64 error_count;
     void cks(char data);
 
 signals:

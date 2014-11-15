@@ -1,6 +1,7 @@
 #include "serialread.h"
 #include <QDebug>
 #include <addrdefine.h>
+#include <QException>
 serialRead::serialRead(QObject *parent) :
     QThread(parent)
 {
@@ -11,7 +12,8 @@ serialRead::serialRead(QObject *parent) :
 void serialRead::initDefaultVal()
 {
     state = 0;header = 0;id = 0;length = 0;cka = 0;
-    ckb = 0;r_cka = 0; r_ckb =0,counter = 0;buffer.resize(1024);
+    ckb = 0;r_cka = 0; r_ckb =0,counter = 0;
+    error_count = 0;
 }
 
 void serialRead::setPort(QSerialPort *port)
@@ -32,18 +34,23 @@ void serialRead::cks(char data)
 
 void serialRead::SLOT_readByteFromBuffer()
 {
+//    try{
         m_PortLock->lock();
         //qDebug() << "start read";
-        if(comPort == NULL || !comPort->isOpen())return;
+        if(comPort == NULL || !comPort->isOpen())return;     
         qint64 num = comPort->bytesAvailable();
         if(num > 5){
-        if(num > 2048)num = 2048;
-        QByteArray bufferRead = comPort->read(num);
+                if(num > 2048)num = 2048;
+        char* bufferRead = new char [num];
+        if(bufferRead == NULL)return;
+       // QByteArray bufferRead = comPort->read(num);
+        comPort->read(bufferRead,num);
         //qDebug() << "end read";
         m_PortLock->unlock();
-        for (int pos = 0; pos < bufferRead.size(); pos++)
+        for (int pos = 0; pos < num; pos++)
         {
-          unsigned char data   = (unsigned char)bufferRead[pos];
+            qDebug() << "pos" << pos << num;
+            unsigned char data   = (unsigned char)bufferRead[pos];
             switch (state)
             {
                 case 0:
@@ -72,6 +79,7 @@ void serialRead::SLOT_readByteFromBuffer()
                         if ((cka == r_cka) && (ckb == r_ckb))//203 226 206 240 205 229
                         {
                             int *tmpint = new int[length/2];
+                            if(tmpint == NULL)return;
                             int j =0;
                             for (j = 0; j < length; j=j+2)
                             {
@@ -82,14 +90,24 @@ void serialRead::SLOT_readByteFromBuffer()
                             cka = 0; ckb = 0; counter = 0; state = 0;buffer.clear();
                         }
                         else {
+                            error_count++;
+                            qDebug() << "error count" << error_count;
                             cka = 0; ckb = 0; counter = 0; state = 0;
-                            buffer.clear();
+
                             }
                         break;
            }
         }
-      }else{
+
+        delete[] bufferRead;
+      }
+        else{
             //qDebug() << "end read";
             m_PortLock->unlock();
            }
+//    }
+//    catch()
+//    {
+
+//    }
 }

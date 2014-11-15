@@ -14,6 +14,7 @@ QVariant vtdrawimages::getValue() const
 void vtdrawimages::setValue(const QVariant &value)
 {
     DrawImages *dig = qobject_cast<DrawImages*> (view);
+    if(dig == NULL)return;
     int tmpint = value.toInt();
     int key = tmpint >> 16;
     int val = tmpint & 0xFFFF;

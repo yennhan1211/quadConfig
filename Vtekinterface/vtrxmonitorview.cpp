@@ -19,6 +19,7 @@ QVariant VtRxMonitorView::getValue(int key) const
 void VtRxMonitorView::setValue(const QVariant &value)
 {
     RxMonitorView *rx = qobject_cast<RxMonitorView*> (view);
+    if(rx == NULL)return;
     int tmpint = value.toInt();
     int key = tmpint >> 16;
     int val = tmpint & 0xFFFF;

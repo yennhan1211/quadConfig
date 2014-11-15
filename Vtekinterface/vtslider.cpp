@@ -18,6 +18,7 @@ QVariant VtSlider::getValue() const
 void VtSlider::setValue(const QVariant &value)
 {
     QSlider *slider = qobject_cast<QSlider*> (view);   
+    if(slider == NULL)return;
     int val = value.toInt() ;
     if (slider->minimum() < 0) {
         val = val - 100;

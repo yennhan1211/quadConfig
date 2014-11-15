@@ -629,7 +629,7 @@ void mainWidget::intDefaultValue()
 
 void mainWidget::initTimer()
 {
-    m_requestReadTimer.setInterval(40);
+    m_requestReadTimer.setInterval(25);
 }
 
 void mainWidget::loadImage()
@@ -727,6 +727,7 @@ void mainWidget::SLOT_getDataWriteFromButtonGroups(int bttid)
             }
         }
         m_dataWrite = new int[1];
+        if(m_dataWrite == NULL)return;
         m_dataWrite[0] = bttid;
         m_lenWrite = 1;
         m_counterToWrite = TIMEOUT_TO_WRITE;
@@ -739,6 +740,7 @@ void mainWidget::SLOT_getDataWriteFromButton()
     QPushButton *qpb = qobject_cast<QPushButton*> (sender());
     if(qpb == ui->btnSetdefault){
         m_dataWrite = new int[7];
+        if(m_dataWrite == NULL)return;
         for(int i =0;i < 7;i++){
             m_dataWrite[i] = 100;
         }
@@ -750,6 +752,7 @@ void mainWidget::SLOT_getDataWriteFromButton()
     else if(qpb == ui->btnBind)
         {
             m_dataWrite = new int[1];
+            if(m_dataWrite == NULL)return;
             if(ui->rbDSM2->isChecked())m_dataWrite[0] = 3;else if(ui->rbDSMx->isChecked())m_dataWrite[0] = 9;
             m_addrWrite = BIND_ADDR;
             m_lenWrite = 1;
@@ -760,6 +763,7 @@ void mainWidget::SLOT_getDataWriteFromButton()
         }
     else if(qpb == ui->btnCalibAcc){
             m_dataWrite = new int[1];
+            if(m_dataWrite == NULL)return;
             m_addrWrite = CALIB_ACC_STATUS_ADDR;
             m_dataWrite[0] =1;
             m_lenWrite = 1;
@@ -782,6 +786,7 @@ void mainWidget::SLOT_getDataWriteFromCombobox(int index)
         }
         QComboBox *qpb = qobject_cast<QComboBox*> (sender());
         m_dataWrite = new int[1];
+        if(m_dataWrite == NULL)return;
         m_dataWrite[0] = qpb->currentIndex()+1;
         m_lenWrite = 1;
         m_counterToWrite = TIMEOUT_TO_WRITE;
@@ -801,6 +806,7 @@ void mainWidget::SLOT_getDataWriteFromSliderRelease()
             }
         }
         m_dataWrite = new int[1];
+        if(m_dataWrite == NULL)return;
         QSlider *qpb = qobject_cast<QSlider*> (sender());
         int val = qpb->value();
         if (qpb->minimum() < 0) {
@@ -835,6 +841,7 @@ void mainWidget::SLOT_getDataWriteFromCheckBox(bool b)
              }
          }
          m_dataWrite = new int[1];
+         if(m_dataWrite == NULL)return;
          if(b)m_dataWrite[0] = 1;else m_dataWrite[0] =0;
          m_lenWrite = 1;
          m_counterToWrite = TIMEOUT_TO_WRITE;
@@ -880,6 +887,7 @@ void mainWidget::SLOT_btnBindAnimation(bool b)
     if(b){
         if((sender() == ui->rbTradition || sender() == ui->rbPPM || sender() == ui->rbSbus) && m_BindAnimationFlag == false){
             QPropertyAnimation *anim = new QPropertyAnimation(ui->btnBind, "pos");
+            if(anim == NULL)return;
             anim->setKeyValueAt(0, QPointF(ui->btnBind->x(), ui->btnBind->y() ));
             anim->setKeyValueAt(1, QPointF(ui->rbDSMx->x()+30, ui->rbDSMx->y() -120));
             anim->setDuration(350);
@@ -889,6 +897,7 @@ void mainWidget::SLOT_btnBindAnimation(bool b)
         }
         else if((sender() == ui->rbDSM2 || sender() == ui->rbDSMx) && m_BindAnimationFlag == true){
             QPropertyAnimation *anim = new QPropertyAnimation(ui->btnBind, "pos");
+            if(anim == NULL)return;
             anim->setKeyValueAt(0, QPointF(ui->btnBind->x(), ui->btnBind->y()));
             anim->setKeyValueAt(1,QPointF(ui->rbDSMx->x()+30, ui->rbDSMx->y() +30));
             anim->setDuration(350);
@@ -991,6 +1000,7 @@ void mainWidget::SLOT_changeStackedConfig()
        ui->stackedWidgetConfig->setCurrentIndex(ui->stackedWidgetConfig->currentIndex()+1);
     }
    QPropertyAnimation *anim = new QPropertyAnimation(ui->stackedWidgetConfig, "pos");
+   if(anim == NULL)return;
    anim->setKeyValueAt(0, QPointF(ui->stackedWidgetConfig->x() - 20, ui->stackedWidgetConfig->y()));
    anim->setKeyValueAt(0.8, QPointF(ui->stackedWidgetConfig->x() + 5, ui->stackedWidgetConfig->y()));
    anim->setKeyValueAt(1, QPointF(ui->stackedWidgetConfig->x(), ui->stackedWidgetConfig->y()));
@@ -1011,9 +1021,11 @@ void mainWidget::SLOT_changeStackedRxView()
         ui->stackedWidgetRxView->setCurrentIndex(1);
 
         QParallelAnimationGroup *group = new QParallelAnimationGroup;
+        if(group == NULL)return;
         foreach (QWidget* widget, list) {
 
             QPropertyAnimation *anim = new QPropertyAnimation(widget, "pos");
+            if(anim == NULL)return;
             anim->setKeyValueAt(0, QPointF(widget->x() + 20, widget->y()));
             anim->setKeyValueAt(0.8, QPointF(widget->x() - 5, widget->y()));
             anim->setKeyValueAt(1, QPointF(widget->x(), widget->y()));
@@ -1026,6 +1038,7 @@ void mainWidget::SLOT_changeStackedRxView()
         ui->frameTranmister->hide();
         ui->stackedWidgetRxView->setCurrentIndex(0);
         QPropertyAnimation *anim = new QPropertyAnimation(ui->stackedWidgetRxView, "pos");
+        if(anim == NULL)return;
         anim->setKeyValueAt(0, QPointF(ui->stackedWidgetRxView->x() +20, ui->stackedWidgetRxView->y()));
         anim->setKeyValueAt(0.8, QPointF(ui->stackedWidgetRxView->x() - 5, ui->stackedWidgetRxView->y()));
         anim->setKeyValueAt(1, QPointF(ui->stackedWidgetRxView->x(), ui->stackedWidgetRxView->y()));
@@ -1071,6 +1084,7 @@ void mainWidget::SLOT_modeSelectChange(int value)
     else if(value >= 1600 && value < 1800){tmp = ui->cbFlymode4->x()- ui->lbModeSelectBg->x();}
     else if(value >= 1800 && value < 2000){tmp = ui->cbFlymode5->x()- ui->lbModeSelectBg->x();}
     QPropertyAnimation *anim = new QPropertyAnimation(ui->lbModeSelectBg, "pos");
+    if(anim == NULL)return;
     anim->setKeyValueAt(0, QPointF(ui->lbModeSelectBg->x(), ui->lbModeSelectBg->y()));
     anim->setKeyValueAt(1, QPointF(ui->lbModeSelectBg->x() + tmp, ui->lbModeSelectBg->y()));
     anim->setDuration(250);
@@ -1131,6 +1145,7 @@ void mainWidget::SLOT_getDataWritelineEditFinish()
         QLineEdit *qpb = qobject_cast<QLineEdit*> (sender());
         if(line_edit_value_last != qpb->text().toInt()){
         m_dataWrite = new int[1];
+        if(m_dataWrite == NULL)return;
         const QIntValidator *bvt = qobject_cast<const QIntValidator* > (qpb->validator());
         if(bvt->bottom() == -50)
         m_dataWrite[0] =   qpb->text().toInt() + 50;
@@ -1361,7 +1376,7 @@ void mainWidget::SLOT_changeDescriptionWhenLeave(QObject *obj)
 
 void mainWidget::animationWhenTabChanged(int tabIndex)
 {
-    QList<QWidget*> list;
+    QList <QWidget*> list;
     switch(tabIndex)
     {
     case TabRx: {
@@ -1429,6 +1444,8 @@ void mainWidget::animationWhenTabChanged(int tabIndex)
         list.append(ui->lePerAlarm_2);
         list.append(ui->lePerAlarm_3);
         list.append(ui->lbA_per);
+        list.append(ui->leMinAlt);
+        list.append(ui->lbMinAlt);
         break;
     }
     case TabSensor:
@@ -1443,6 +1460,10 @@ void mainWidget::animationWhenTabChanged(int tabIndex)
         list.append(ui->txtBDesCalib);
         list.append(m_rollSensor);
         list.append(m_yawSensor);
+        list.append(ui->groupBox_5);
+        list.append(ui->groupBox_6);
+        list.append(ui->lbGPSStatus);
+        list.append(ui->lbSensorStatus);
         break;
     case TabGimbal: {
         list.append(ui->chbGimbalPitchRev);
@@ -1480,9 +1501,11 @@ void mainWidget::animationWhenTabChanged(int tabIndex)
     }
 
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
+    if(group == NULL)return;
     foreach (QWidget* widget, list) {
 
         QPropertyAnimation *anim = new QPropertyAnimation(widget, "pos");
+        if(anim == NULL)return;
         anim->setKeyValueAt(0, QPointF(widget->x() + 20, widget->y()));
         anim->setKeyValueAt(0.8, QPointF(widget->x() - 5, widget->y()));
         anim->setKeyValueAt(1, QPointF(widget->x(), widget->y()));
@@ -1578,7 +1601,8 @@ void mainWidget::SLOT_emitSIGNALtoRead()
         {
        // qDebug() << "response";
         } else {
-             emit SIGNAL_handleReconnect();m_dataCounter = 0;
+          //   emit SIGNAL_handleReconnect();
+            m_dataCounter = 0;
        //      qDebug() << " no response";
              return;
         }
@@ -1679,6 +1703,7 @@ void mainWidget::hideTooltips()
 void mainWidget::initTooltips()
 {
     m_BindToolTips = new LineEditTooltip(this);
+    if(m_BindToolTips == NULL)return;
     m_BindToolTips->setText(BIND_MESS);
     m_BindToolTips->setFixedSize(160,45);
     QPoint tmp(-110,ui->btnBind->height()+3);
@@ -1686,6 +1711,7 @@ void mainWidget::initTooltips()
     m_BindToolTips->setTimeAutoHide(3);
 
     m_IntroToolTips = new LineEditTooltip(this);
+    if(m_IntroToolTips == NULL)return;
     m_IntroToolTips->setText(LINEEDIT_MESS);
     m_IntroToolTips->setFixedSize(160,45);
 
@@ -1697,6 +1723,7 @@ void mainWidget::initTooltips()
     ui->btnOpen->setToolTip(DES_LOADFILE);
     ui->btnSetdefault->setToolTip(DES_DEFAULTGAIN);
     m_messbox_writetocf =  new vtmessagebox(this);
+    if(m_messbox_writetocf == NULL)return;
     m_messbox_writetocf->setMessage("Write all config to FC ?");
     m_messbox_writetocf->move(430,605);
 }
@@ -1705,12 +1732,14 @@ void mainWidget::initRxview()
 {
     rxViewLeft = new RxMonitorView(RX_MONITOR_WIDTH, RX_MONITOR_HEIGHT,
                                    RX_SENSOR_WIDTH, RX_SENSOR_HEIGHT, ui->stackedWidgetRxView->widget(1));
+    if(rxViewLeft == NULL)return;
     rxViewLeft->setRangeValue(920,2120);
     rxViewLeft->setLocation(RX_LOCATION_LEFT);
     rxViewLeft->move(40, 15);
 
     rxViewRight = new RxMonitorView(RX_MONITOR_WIDTH, RX_MONITOR_HEIGHT,
                                     RX_SENSOR_WIDTH, RX_SENSOR_HEIGHT, ui->stackedWidgetRxView->widget(1));
+    if(rxViewRight == NULL)return;
     rxViewRight->setRangeValue(920,2120);
     rxViewRight->setLocation(RX_LOCATION_RIGHT);
     rxViewRight->move(295, 15);
@@ -1719,6 +1748,7 @@ void mainWidget::initRxview()
 void mainWidget::initSensorview()
 {
     m_rollSensor = new DrawImages(ui->tabSensor);
+    if(m_rollSensor == NULL)return;
     m_rollSensor->setGeometry(330,140,298,288);
     m_rollSensor->setDrawBackGround(true);
     m_rollSensor->setBackGroundImage(ROLL_PITCH_BACKGROUND_IMAGE_URL);
@@ -1727,6 +1757,7 @@ void mainWidget::initSensorview()
     m_rollSensor->show();
 
     m_yawSensor = new DrawImages(ui->tabSensor);
+    if(m_yawSensor  == NULL)return;
     m_yawSensor->setGeometry(668,140,298,288);
     m_yawSensor->setDrawBackGround(false);
     m_yawSensor->setBackGroundImage(YAW_BACKGROUND_IMAGE_URL);

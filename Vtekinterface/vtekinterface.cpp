@@ -12,6 +12,7 @@
 VtekInterface *VtekInterface::createVtekObject(QObject *view)
 {
     const char* chars = view->metaObject()->className();
+    if(chars == NULL)return NULL;
     QString className(chars);
     VtekInterface *result = NULL;
      if (className == "QSlider") {

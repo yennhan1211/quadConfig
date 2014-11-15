@@ -25,6 +25,7 @@ DrawImages::~DrawImages()
 void DrawImages::setPixmapUrl(const QString &url)
 {
     m_pixmap = new QPixmap(url);
+
 }
 
 void DrawImages::setAngle(double angle)

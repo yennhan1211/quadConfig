@@ -14,6 +14,7 @@ QVariant vtcheckbox::getValue() const
 void vtcheckbox::setValue(const QVariant &value)
 {
     QAbstractButton *btt = qobject_cast<QAbstractButton*> (view);
+    if(btt == NULL)return;
     if(value.toBool() != btt->isChecked()){
     if(!value.toBool())btt->setText("Norm");else btt->setText("Rev");
     btt->setChecked(value.toBool());
