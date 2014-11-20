@@ -19,6 +19,8 @@ void serialRead::initDefaultVal()
 void serialRead::setPort(QSerialPort *port)
 {
     this->comPort = port;
+    if(port != NULL)
+    port->moveToThread(this);
 }
 
 void serialRead::setMutex(QMutex *mutex)
@@ -32,9 +34,20 @@ void serialRead::cks(char data)
     ckb += cka;
 }
 
+void serialRead::run()
+{
+    try{
+    exec();
+    }
+    catch(const std::exception &){
+        qDebug() << "sr exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        return;
+    }
+}
+
 void serialRead::SLOT_readByteFromBuffer()
 {
-//    try{
+    try{
         m_PortLock->lock();
         //qDebug() << "start read";
         if(comPort == NULL || !comPort->isOpen())return;     
@@ -49,7 +62,7 @@ void serialRead::SLOT_readByteFromBuffer()
         m_PortLock->unlock();
         for (int pos = 0; pos < num; pos++)
         {
-            qDebug() << "pos" << pos << num;
+            //qDebug() << "pos" << pos << num;
             unsigned char data   = (unsigned char)bufferRead[pos];
             switch (state)
             {
@@ -61,7 +74,12 @@ void serialRead::SLOT_readByteFromBuffer()
                         break;
                 case 2:
                         header = data; cks(header); state++; counter = 0; length = (unsigned char)((((header >> 2)  & 31)*2));
+
                         if(length == 0 ){state = 0;}
+                        else {
+                            buffer = new char[length];
+                            if(buffer == NULL)return;
+                        }
                         break;
                 case 3:
                         id = data; cks(id); state++; counter = 0; addr = (((header & 3) << 8) | id);
@@ -78,6 +96,7 @@ void serialRead::SLOT_readByteFromBuffer()
                         r_ckb = data;
                         if ((cka == r_cka) && (ckb == r_ckb))//203 226 206 240 205 229
                         {
+
                             int *tmpint = new int[length/2];
                             if(tmpint == NULL)return;
                             int j =0;
@@ -85,9 +104,10 @@ void serialRead::SLOT_readByteFromBuffer()
                             {
                                 tmpint[ (j/2) ] = ( unsigned char)buffer[j] << 8   | ( unsigned char) buffer[j + 1];
                             }
-
+                            //if(addr == 111)qDebug()<< "check sum->" << cka << ckb;
                             emit SIGNAL_dataByteUpdate(tmpint,length/2,addr);
-                            cka = 0; ckb = 0; counter = 0; state = 0;buffer.clear();
+                            cka = 0; ckb = 0; counter = 0; state = 0;
+                            delete buffer;
                         }
                         else {
                             error_count++;
@@ -105,9 +125,10 @@ void serialRead::SLOT_readByteFromBuffer()
             //qDebug() << "end read";
             m_PortLock->unlock();
            }
-//    }
-//    catch()
-//    {
-
-//    }
+    }
+    catch(const std::bad_alloc &e)
+    {
+        qDebug()<< "my ex" << e.what();
+        return;
+    }
 }

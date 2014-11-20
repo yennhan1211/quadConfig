@@ -45,6 +45,7 @@ void FlashHelper::updateFlash()
 
     if (file.exists())
     {
+
         m_stream << "*goto3007\r";
         m_stream.flush();
         int timeout = 0;

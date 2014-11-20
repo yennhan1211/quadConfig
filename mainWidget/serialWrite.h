@@ -32,6 +32,7 @@ private:
     void writeByteData(int addr,int numOfField,int rwStt);
     void writeByteDataWithCheckSum(int *data,int len,int addr);
 protected:
+    void run();
     enum Tabs{
          TabRx = 0,
          TabConfig = 1,

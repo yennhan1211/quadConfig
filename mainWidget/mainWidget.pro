@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     serialWrite.cpp \
     flashhelper.cpp \
     requestmanager.cpp \
-    waypointform.cpp
+    waypointform.cpp \
+    myapp.cpp
 
 HEADERS  += mainwidget.h \
     myserialport.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwidget.h \
     mystring.h \
     flashhelper.h \
     requestmanager.h \
-    waypointform.h
+    waypointform.h \
+    myapp.h
 
 FORMS    += mainwidget.ui \
     waypointform.ui

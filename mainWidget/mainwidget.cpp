@@ -629,7 +629,7 @@ void mainWidget::intDefaultValue()
 
 void mainWidget::initTimer()
 {
-    m_requestReadTimer.setInterval(25);
+    m_requestReadTimer.setInterval(50);
 }
 
 void mainWidget::loadImage()
@@ -1580,6 +1580,7 @@ void mainWidget::SLOT_updateUI(int *data,int len,int addr)
               qvtmp = tmp3;
           }
           else qvtmp = data[i];
+          if(qvtmp == NULL)return;
           VtekInterface *inf = VtekInterface::createVtekObject(obj);
           if (inf != NULL) {
               inf->setValue(qvtmp);

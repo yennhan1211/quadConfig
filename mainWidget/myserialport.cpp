@@ -21,7 +21,7 @@ MySerialPort::MySerialPort(mainWidget *ui,QObject *parent): QThread(parent)
     connect(ui,SIGNAL(SIGNAL_needUpdateFlash(QString)),this,SLOT(SLOT_startUpdateFlash(QString)));
     connect(&_flash,SIGNAL(_flashProgressChanged(int)),ui,SLOT(SLOT_updateFlashPercent(int)));
     connect(&_flash,SIGNAL(_flashStatusChanged(int)),ui,SLOT(SLOT_updateFlashStatus(int)));
-    connect(&_flash,SIGNAL(_flashFinish(int)),this,SLOT(SLOT_Flashfinish(int)));
+    //connect(&_flash,SIGNAL(_flashFinish(int)),this,SLOT(SLOT_Flashfinish(int)));
 
 }
 
@@ -120,9 +120,10 @@ void MySerialPort::readAction(int i)
             connect(myport,SIGNAL(readyRead()),&_serialRead,SLOT(SLOT_readByteFromBuffer()), Qt::UniqueConnection);
             connect(myport,SIGNAL(error(QSerialPort::SerialPortError)),this,
                     SLOT(SLOT_handleSerialPortError(QSerialPort::SerialPortError)),
-                     (Qt::ConnectionType) (Qt::QueuedConnection | Qt::UniqueConnection));
+                     (Qt::ConnectionType) (Qt::AutoConnection | Qt::UniqueConnection));
             break;
         case READ_NONE:
+            qDebug() << "disconnect signal" << (myport == NULL);
             disconnect(myport,SIGNAL(readyRead()),0,0);
             disconnect(myport,SIGNAL(error(QSerialPort::SerialPortError)),0,0);
             break;
@@ -130,6 +131,7 @@ void MySerialPort::readAction(int i)
 }
 void MySerialPort::SLOT_handleSerialPortError(const QSerialPort::SerialPortError& error)
 {
+        qDebug() << "error code " << error;
         switch (error)
         {
         case QSerialPort::NotOpenError:
@@ -150,7 +152,7 @@ void MySerialPort::SLOT_handleSerialPortError(const QSerialPort::SerialPortError
         case QSerialPort::NoError:
             return;
         }
-        tryToHandleError();
+        if(myport != NULL) tryToHandleError();
 }
 void MySerialPort::tryToHandleError()
 {
@@ -242,6 +244,7 @@ void MySerialPort::checkDevice()// 12c4 ea12
                         {   _timerScan.stop();
                             myport = port;
                             readAction(READ_BYTE);
+
                             _serialWrite.setPort(myport);
                             _serialWrite.setMutex(&m_mutex);
                             _serialRead.setPort(myport);
@@ -249,11 +252,11 @@ void MySerialPort::checkDevice()// 12c4 ea12
                             qDebug() << "lock thread->" << &m_mutex;
                             startSerialReadWrite();
                             emit SIGNAL_connectStatus(true);
-//                             if (m_flashstatus >= 2) {
-//                                 qDebug() << "-> jum 10";
-//                                 _flash.emitFlashStatus(FlashHelper::FlashOk);
-//                                 m_flashstatus = 0;
-//                                }
+                             if (m_flashstatus >= 2) {
+                                 qDebug() << "-> jum 10";
+                                 _flash.emitFlashStatus(FlashHelper::FlashOk);
+                                 m_flashstatus = 0;
+                                }
                             break;
                         }
                         else                        
@@ -309,18 +312,18 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
             disconnect(myport, SIGNAL(readyRead()), 0, 0);
             connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
         }
-
+         readAction(READ_NONE);
         _flash.setFlashFilePath(filePath);
         _flash.setPort(myport);
         _flash.setMutex(&m_mutex);
-        _flash.updateFlashNew();
-//        m_flashstatus = 10;
-//        SLEEP(100)
-//        // emit signal start try reconnect
-//        _flash.emitFlashStatus(FlashHelper::StartReconnect);
-//        // disconnect port va thu connect lai de test firmware moi
-//        this->tryToHandleError();
-//        qDebug() << "flashstatus ->" << m_flashstatus;
+        _flash.updateFlash();
+        m_flashstatus = 10;
+        SLEEP(100)
+        // emit signal start try reconnect
+        _flash.emitFlashStatus(FlashHelper::StartReconnect);
+        // disconnect port va thu connect lai de test firmware moi
+        this->tryToHandleError();
+        qDebug() << "flashstatus ->" << m_flashstatus;
 }
 
 void MySerialPort::SLOT_Flashfinish(int status)
@@ -351,7 +354,14 @@ void MySerialPort::run()
 {
     _timerScan.start(100);
     qDebug() << "serial port thread id ->" << QThread::currentThreadId();
+    try{
     exec();
+    }
+    catch(const std::bad_alloc &)
+    {
+        qDebug() << "ms exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        return;
+    }
 }
 
 void MySerialPort::cks(unsigned char data)

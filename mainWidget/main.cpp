@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QSplashScreen>
 #include <mystring.h>
+#include <myapp.h>
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -27,5 +28,19 @@ int main(int argc, char *argv[])
     w.show();
 
 //    splash.finish(&w);
-    return a.exec();
+//    try{
+//         return a.exec();
+//       }
+//    catch(std::exception &e)
+//    {
+//        QString strPath = "./crash_log.txt";
+//        QFile mFile(strPath);
+//        mFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+//        QString content ="[" + QDateTime::currentDateTime().toString()+"]"+" " +e.what()+ "\r\n";
+//        mFile.write(content.toUtf8());
+//        mFile.close();
+//        qDebug() << "exxxxxxxxxxxxxxxxx ALL"<< e.what() ;
+//    }
+//    return 0;
+      return a.exec();
 }

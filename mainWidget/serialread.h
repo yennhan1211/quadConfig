@@ -18,10 +18,11 @@ private:
     unsigned char cka ,ckb ,state ,header, id , length;
     unsigned char counter ,r_cka ,r_ckb ;
     int addr ;
-    QByteArray buffer;
+    char* buffer;
     qint64 error_count;
     void cks(char data);
-
+protected:
+    void run();
 signals:
     void SIGNAL_dataByteUpdate(int*,int,int);
 public slots:

@@ -46,6 +46,7 @@ void SerialWrite::writeByteData(int addr, int numOfField, int rwStt)
     tmpSend[3] = (addr & 255);
     m_PortLock->lock();
     //qDebug() << "start write";
+    if(addr == 112)qDebug() << "read ->" << (quint8)tmpSend[2] << (quint8)tmpSend[3];
     comPort->write(tmpSend);
     SLEEP(24)
     //qDebug() << "end write";
@@ -81,4 +82,16 @@ void SerialWrite::writeByteDataWithCheckSum(int *data, int len, int addr)
     m_PortLock->unlock();
     qDebug() << "write total byte ->" << len;
     delete[] data;
+}
+
+void SerialWrite::run()
+{
+   try{
+        exec();
+    }
+    catch   (const std::exception)
+    {
+        qDebug() << "sw exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        return ;
+    }
 }
