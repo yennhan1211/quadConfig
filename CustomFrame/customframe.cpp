@@ -131,7 +131,7 @@ void CustomFrame::resizeEvent(QResizeEvent *event)
     painter.setPen(Qt::NoPen);
     painter.setBrush(gr);
     painter.drawRect(frame);
-
+    qDebug() << "resize event";
     QPixmap mypixmap(imagePath);
     painter.drawPixmap(frame,mypixmap,mypixmap.rect());
 
@@ -164,6 +164,7 @@ void CustomFrame::setWindowTitleSize(int width, int height)
 void CustomFrame::setBackGroundImage(const QString &path)
 {
     imagePath = path;
+    resizeEvent(0);
 }
 
 void CustomFrame::CenterOnScreen()

@@ -156,6 +156,9 @@
 #define GIMBAL_ON_VAL 1
 #define GIMBAL_OFF_VAL 0
 
+#define DARK_SKIN 1
+#define GREY_SKIN 0
+
 #   define WMI_STATUS_PLUGGED 2
 #   define WMI_STATUS_UNPLUGGED 3
 

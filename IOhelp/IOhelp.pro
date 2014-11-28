@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui widgets network
+QT       += gui widgets network serialport
 
 TARGET = IOhelp
 TEMPLATE = lib
@@ -13,14 +13,21 @@ DEFINES += IOHELP_LIBRARY
 
 SOURCES += \
     iohelper.cpp \
-    downloadhelper.cpp
+    downloadhelper.cpp \
+    ioconfig.cpp \
+    sslclient.cpp
 
 HEADERS +=\
         iohelp_global.h \
     iohelper.h \
-    downloadhelper.h
+    downloadhelper.h \
+    ioconfig.h \
+    sslclient.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+RESOURCES += \
+    myRes.qrc

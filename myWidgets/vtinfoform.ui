@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
-background-color:#8E8E93;
+background-color:#1abc9c;
 }</string>
   </property>
   <widget class="QLabel" name="label">
@@ -61,7 +61,7 @@ color:white;
     <string>Version 1.0.0 (beta)</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
@@ -118,6 +118,58 @@ QPushButton::pressed {
    </property>
    <property name="text">
     <string>Close</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cbSkin">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>80</y>
+     <width>100</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+QComboBox {
+	font-size:12px;
+font-family:UTM-Avo;
+	padding:5px;
+	background-color:transparent;
+	color:white;
+	border:1px solid #ababab;
+ }
+QComboBox::drop-down {
+	width:30px;
+	height:30px;
+	background:transparent;
+	subcontrol-origin: padding;
+    subcontrol-position: center right;
+}
+
+QComboBox::down-arrow {
+     image: url(images/down-arrow.png);
+ }</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>80</y>
+     <width>30</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel{
+color:white;
+    font-size:13px;
+	font-family:UTM Avo;
+}</string>
+   </property>
+   <property name="text">
+    <string>Skin</string>
    </property>
   </widget>
  </widget>

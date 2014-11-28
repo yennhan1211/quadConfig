@@ -226,7 +226,7 @@ QComboBox::down-arrow {
  }</string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tabRx">
     <attribute name="title">
@@ -1500,7 +1500,7 @@ color: white; }</string>
       <rect>
        <x>65</x>
        <y>40</y>
-       <width>200</width>
+       <width>250</width>
        <height>200</height>
       </rect>
      </property>
@@ -1528,9 +1528,15 @@ border:1px solid black;
 */</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page">
+      <property name="styleSheet">
+       <string notr="true">QPushButton::hover {
+	margin-left:1px;
+	margin-top:1px;
+}</string>
+      </property>
       <widget class="QPushButton" name="btnHexY">
        <property name="geometry">
         <rect>
@@ -1660,7 +1666,8 @@ color: white;
 }
  QPushButton:pressed {
 	background-color:#2980b9;
- }</string>
+ }
+</string>
        </property>
        <property name="text">
         <string/>
@@ -1920,8 +1927,9 @@ color: white;
         </rect>
        </property>
        <property name="styleSheet">
-        <string notr="true">border:1px solid black;
+        <string notr="true">
 background-image:url(images/gpsbg.png);
+
 
 </string>
        </property>
@@ -2316,6 +2324,48 @@ color: white; }</string>
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
+       </widget>
+       <widget class="QLabel" name="lbA_per_14">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>270</y>
+          <width>51</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel{
+font-family:UTM Banque;
+color: white; }</string>
+        </property>
+        <property name="text">
+         <string>FRONT</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lbA_per_15">
+        <property name="geometry">
+         <rect>
+          <x>360</x>
+          <y>260</y>
+          <width>51</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel{
+font-family:UTM Banque;
+color: white; }</string>
+        </property>
+        <property name="text">
+         <string>LEFT</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -3742,7 +3792,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; is not stable,the calibration will fail.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;CALIBRATION COMPASS:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;- Quickly switch CH5(Flymode) at least 5 &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;- Quickly switch CH6(Flymode) at least 5 &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;times in2 seconds to jump into calibration&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;compass mode.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;- And spin X-Copter at least 2 rounds within&lt;/span&gt;&lt;/p&gt;
@@ -3989,8 +4039,11 @@ color:white;
      <property name="pageStep">
       <number>1</number>
      </property>
+     <property name="value">
+      <number>100</number>
+     </property>
      <property name="sliderPosition">
-      <number>150</number>
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -4014,8 +4067,11 @@ color:white;
      <property name="pageStep">
       <number>1</number>
      </property>
+     <property name="value">
+      <number>100</number>
+     </property>
      <property name="sliderPosition">
-      <number>150</number>
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -4056,7 +4112,7 @@ color:white;
 }</string>
      </property>
      <property name="text">
-      <string>N/A0</string>
+      <string>N/A</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="chbGimbalRollRev">

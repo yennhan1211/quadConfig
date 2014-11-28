@@ -6,8 +6,9 @@
 #define ICON_URL ":/Apollo.ico"
 #define START_MSG "Loading modules ...."
 #define APP_TITLE "Apollo Flight Controller"
-#define APP_BACKGROUND "images/background.png"
-
+#define APP_BACKGROUND "images/background_dark.png"
+#define APP_BACKGROUND2 "images/background.png"
+#define APP_CONFIG "setting.cfg"
 
 #define ROLL_SENSOR_URL "images/sensor/roll.png"
 #define YAW_SENSOR_URL "images/sensor/yaw.png"

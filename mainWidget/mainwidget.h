@@ -22,6 +22,7 @@
 #include <vtinfoform.h>
 #include <counterlabel.h>
 #include <waypointform.h>
+#include <ioconfig.h>
 namespace Ui {
 class mainWidget;
 }
@@ -73,6 +74,7 @@ private:
         QButtonGroup *m_btnSetCenterGroups;
         QButtonGroup *m_btnGimbalOnOffGroups;
         QButtonGroup *m_btnTranmisterModeGroups;
+        ioConfig m_SoftWareConfig;
         QHash<int, QObject*> m_WidgetsIdHash;
         QHash<int, QObject*>m_widgettoWrite;
         QHash<int, QObject*> m_RxViewIdHash;
@@ -157,6 +159,7 @@ public slots:
         void SLOT_btnUpdate_Click();
         void SLOT_lineEditLoseFocus(QObject* obj);
         void SLOT_displayWriteConfigMess(bool);
+        void SLOT_changeSkin(int);
 
 signals:
         void SIGNAL_requestWitreData(int*,int,int);

@@ -215,7 +215,6 @@ bool MySerialPort::openPort(QSerialPort *port)
         return false;
          qDebug() << "set port value fail";
     }
-
     return true;
 }
 
@@ -230,7 +229,7 @@ void MySerialPort::checkDevice()// 12c4 ea12
         if ((info.vendorIdentifier() == QUAD_VENDOR_ID
              && info.productIdentifier() == QUAD_PRODUCT_ID)||(info.vendorIdentifier() == FBL_VENDOR_ID
                                                           && info.productIdentifier() == FBL_PRODUCT_ID))
-        {       qDebug() << "this is my device" << info.portName();
+        {       qDebug() << "this is my device" << info.portName() << info.serialNumber() << info.systemLocation();
                 QSerialPort *port = new QSerialPort(info);
                 if (openPort(port)) {
 
@@ -244,7 +243,6 @@ void MySerialPort::checkDevice()// 12c4 ea12
                         {   _timerScan.stop();
                             myport = port;
                             readAction(READ_BYTE);
-
                             _serialWrite.setPort(myport);
                             _serialWrite.setMutex(&m_mutex);
                             _serialRead.setPort(myport);
@@ -283,36 +281,78 @@ void MySerialPort::SLOT_HandleReconnect()
 void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
 {
     int tmpFlag = 0;
-    if (! connectStatus) { // neu port chua connect, flash cu bi hong, hoac chua connect nhung van nap flash
-            if(_timerScan.isActive())_timerScan.stop();
+
+    if ( connectStatus) { // neu dang connect thi xoa port, ket noi lai tu dau
+            QString oldPortName;
+            connectStatus = false;
+            emit SIGNAL_connectStatus(false);
+            readAction(READ_NONE);
+            stopSerialReadWrite();
+            _serialWrite.setPort(NULL);
+            _serialRead.setPort(NULL);
+            oldPortName = myport->portName();
+            qDebug() << "old port" << oldPortName;
+            if(myport != NULL)
+            {
+                if(myport->isOpen()){
+                    myport->close();
+                }
+                SLEEP(100)
+                delete myport;
+                myport = NULL;
+            }
+            foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+            {
+                if (oldPortName == info.portName()) {
+
+                    QSerialPort *port = new QSerialPort(info);
+                    if (openPort(port)) {
+                        myport = port;
+                        connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
+                        tmpFlag = 1;// tim thay port va mo duoc
+                        break;
+                      }
+                    else{
+                        delete port;
+                     }
+                }
+            }
+
+        }else {
+                    if(_timerScan.isActive())_timerScan.stop();
                     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
                     {
                         if ((info.vendorIdentifier() == QUAD_VENDOR_ID && info.productIdentifier() == QUAD_PRODUCT_ID)||
                             (info.vendorIdentifier() == FBL_VENDOR_ID  && info.productIdentifier() == FBL_PRODUCT_ID)) {
 
-                        QSerialPort *port = new QSerialPort(info);
-                        if (openPort(port)) {
-                            myport = port;
-                            connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
-                            tmpFlag = 1;// tim thay port va mo duoc
-                            break;
-                          }
-                        else{
-                            delete port;
-                            }
+                            QSerialPort *port = new QSerialPort(info);
+                            if (openPort(port)) {
+                                port->write("$boot?\r");
+                                port->waitForBytesWritten(50);
+                                port->waitForReadyRead(50);
+                                QString strRec(port->readAll());
+                                qDebug() << "string boot respon" << strRec;
+                                if(strRec.contains("booted")){// tim thay port
+                                    myport = port;
+                                    connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
+                                    tmpFlag = 1;// tim thay port va mo duoc
+                                    break;
+                                }
+                              }
+                            else{
+                                delete port;
+                                }
                         }
-                    }
-             if(!tmpFlag){
-                  if(!_timerScan.isActive())_timerScan.start();
-                  _flash.emitFlashStatus(FlashHelper::NotFoundDevice);
-                  return;
-             }
-        }
-        else {
-            disconnect(myport, SIGNAL(readyRead()), 0, 0);
-            connect(myport,SIGNAL(readyRead()),&_flash,SLOT(SLOT_ReadByteFromBuffer()));
-        }
+                    }                             
+            }
+            if(!tmpFlag){
+                 if(!_timerScan.isActive())_timerScan.start();
+                 _flash.emitFlashStatus(FlashHelper::NotFoundDevice);
+                 return;
+            }
+
          readAction(READ_NONE);
+         myport->moveToThread(this);
         _flash.setFlashFilePath(filePath);
         _flash.setPort(myport);
         _flash.setMutex(&m_mutex);

@@ -23,7 +23,7 @@ iohelper::~iohelper()
     }
 }
 
-  void iohelper::SLOT_saveConfigToFile(const QString &filePath, m_hash &widgetHash)
+void iohelper::SLOT_saveConfigToFile(const QString &filePath, m_hash &widgetHash)
 {
     QFile file(filePath);
         if (file.open(QIODevice::WriteOnly)) {

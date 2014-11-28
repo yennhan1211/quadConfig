@@ -9,14 +9,16 @@ mainWidget::mainWidget(QWidget *parent) :
     ui(new Ui::mainWidget)
 {
     ui->setupUi(this);
-
+    m_SoftWareConfig.loadConfigFromFile(APP_CONFIG);
+    qDebug() << m_SoftWareConfig.getSkin() << m_SoftWareConfig.getTxMode();
     CustomFrame::setWindowSize(1000,600);
     CustomFrame::setWindowTitleSize(1000,30);
+    if(m_SoftWareConfig.getSkin() == DARK_SKIN)
     CustomFrame::setBackGroundImage(APP_BACKGROUND);
+    else if(m_SoftWareConfig.getSkin() == GREY_SKIN)
+    CustomFrame::setBackGroundImage(APP_BACKGROUND2);
     CustomFrame::setWindowTitle(APP_TITLE);
-
     m_serialPort = new MySerialPort(this);
-
     initRxview();
     initSensorview();
     initTooltips();
@@ -35,13 +37,15 @@ mainWidget::mainWidget(QWidget *parent) :
 
 mainWidget::~mainWidget()
 {
-        m_requestReadTimer.stop();
+    m_requestReadTimer.stop();
     if(m_serialPort->isRunning())
     {
         m_serialPort->quit();
         m_serialPort->wait(1000);
         m_serialPort->deleteLater();
     }
+
+    m_SoftWareConfig.writeConfigToFile(APP_CONFIG);
 
     if(m_btnConfigFrameGroups != NULL) m_btnConfigFrameGroups->deleteLater();
     if(m_btnFaisafeActionGroups != NULL)  m_btnFaisafeActionGroups->deleteLater();
@@ -65,6 +69,7 @@ mainWidget::~mainWidget()
     if(m_info != NULL)  m_info->deleteLater();
     if(m_counterlabel != NULL)  m_counterlabel->deleteLater();
 
+
 //    if(m_rollSensor != NULL)  m_rollSensor->deleteLater();
 //    if(m_pitchSensor != NULL)  m_pitchSensor->deleteLater();
 //    if(m_yawSensor != NULL)  m_yawSensor->deleteLater();
@@ -78,6 +83,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
 {
     connect(m_serialPort,SIGNAL(SIGNAL_connectStatus(bool)),
             this,SLOT(SLOT_updateConnectStatus(bool)), Qt::QueuedConnection);
+    connect(m_info,SIGNAL(SIGNAL_SkinChange(int)),this,SLOT(SLOT_changeSkin(int)));
 
     connect(ui->btnQuadX,SIGNAL(clicked()),this,SLOT(SLOT_moveImageChecked()));
     connect(ui->btnQuadPlus,SIGNAL(clicked()),this,SLOT(SLOT_moveImageChecked()));
@@ -306,8 +312,6 @@ void mainWidget::initWidgetToHash()
 
  // motor idle speed
     m_WidgetsIdHash.insert(IDLE_MOTORSPEED_ADDR,ui->sldIdlemotorspeed);
-
-
 
     m_WidgetsIdHash.insert(FLYMODE1_ADDR,ui->cbFlymode1);
     m_WidgetsIdHash.insert(FLYMODE2_ADDR,ui->cbFlymode2);
@@ -555,7 +559,7 @@ void mainWidget::initWidget()
     m_waitDialog->hideDialog();
 
     m_info = new vtinfoform(this);
-
+    m_info->setCurrentSkin(m_SoftWareConfig.getSkin());
     m_counterlabel = new counterLabel(900,5,ui->tabConfig);
     m_counterlabel->setTotalCounter(3);
 }
@@ -581,7 +585,9 @@ void mainWidget::initWidgetValue()
     ui->txtBDesCalib->stackUnder(ui->btnCalibAcc);
 
     ui->stackedWidgetConfig->setCurrentIndex(0);
+    if(m_SoftWareConfig.getTxMode() == 0)
     m_btnTranmisterModeGroups->button(TX_MODE_2)->setChecked(true);
+    else m_btnTranmisterModeGroups->button(m_SoftWareConfig.getTxMode() )->setChecked(true);
     ui->btnVoltAlarm1->click();
 
 
@@ -629,7 +635,7 @@ void mainWidget::intDefaultValue()
 
 void mainWidget::initTimer()
 {
-    m_requestReadTimer.setInterval(50);
+    m_requestReadTimer.setInterval(20);
 }
 
 void mainWidget::loadImage()
@@ -852,6 +858,7 @@ void mainWidget::SLOT_getDataWriteFromCheckBox(bool b)
 void mainWidget::SLOT_displayLabelFromObj(int val)
 {
      QObject *qpb = qobject_cast<QObject*> (sender());
+     //qDebug() << qpb;
      if(qpb != NULL){
         if(qpb == ui->sldGohmeSpeed){
             double tmpd = (double)val /10;
@@ -1137,6 +1144,7 @@ void mainWidget::SLOT_txModeChange(int control,bool b)
     ui->sldRudder->setValue(ui->sldRudder->value()+1);
     qDebug() << "jum tx mode";
     }
+    m_SoftWareConfig.setTxInfo(control);
 }
 
 void mainWidget::SLOT_getDataWritelineEditFinish()
@@ -1277,9 +1285,10 @@ void mainWidget::SLOT_restartTimer()
 
 void mainWidget::SLOT_btnUpdate_Click()
 {
-    if(m_wpWidget != NULL)
-    m_wpWidget = new wayPointForm();
-    m_wpWidget->show();
+//    if(m_wpWidget != NULL)
+//    m_wpWidget = new wayPointForm();
+//    m_wpWidget->show();
+
 }
 
 void mainWidget::SLOT_lineEditLoseFocus(QObject* obj)
@@ -1299,6 +1308,22 @@ void mainWidget::SLOT_displayWriteConfigMess(bool stt)
     else {
 
     }
+}
+
+void mainWidget::SLOT_changeSkin(int mSkin)
+{
+    switch (mSkin) {
+    case DARK_SKIN:
+        CustomFrame::setBackGroundImage(APP_BACKGROUND);
+        break;
+    case GREY_SKIN:
+        CustomFrame::setBackGroundImage(APP_BACKGROUND2);
+        break;
+    }
+   m_SoftWareConfig.setSkin(mSkin);
+   qDebug() << "skin" <<mSkin;
+   m_SoftWareConfig.writeConfigToFile(APP_CONFIG);
+   this->repaint();
 }
 
 bool mainWidget::eventFilter(QObject *obj, QEvent *event)
@@ -1542,10 +1567,11 @@ void mainWidget::SLOT_updateUI(int *data,int len,int addr)
 
     if(m_UpdateUi){
 
-        for(int i =0;i < len ;i ++)
+        //if(addr == 550)qDebug() << data[5] << len;
+        for(int i =0;i < len ;i++)
         {
           QObject *obj = m_WidgetsIdHash[addr + i];
-
+            //qDebug() << obj  << addr + i;
           if (obj != NULL && obj != m_objFocus){
           QVariant qvtmp;
           if(obj == ui->lbCalibAccStt){qvtmp = m_calibAccStatus[data[i]];}
@@ -1580,7 +1606,6 @@ void mainWidget::SLOT_updateUI(int *data,int len,int addr)
               qvtmp = tmp3;
           }
           else qvtmp = data[i];
-          if(qvtmp == NULL)return;
           VtekInterface *inf = VtekInterface::createVtekObject(obj);
           if (inf != NULL) {
               inf->setValue(qvtmp);

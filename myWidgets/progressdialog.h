@@ -30,7 +30,8 @@ public:
     int progressBarValue();
 public slots:
     void setProgressBarValue(int);
-
+protected:
+    void keyPressEvent(QKeyEvent *e);
 private:
     Ui::ProgressDialog *ui;
     ProgressRing* m_progressRing;

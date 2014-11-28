@@ -83,7 +83,7 @@ void FlashHelper::updateFlash()
             m_stream << "$erase?\r";
             m_stream.flush();
             emit _flashStatusChanged(StartEraseFlash);
-            SLEEP(5000);
+            SLEEP(6000);
             emit _flashStatusChanged(EraseFlashFinished);
 
             QByteArray bytes;

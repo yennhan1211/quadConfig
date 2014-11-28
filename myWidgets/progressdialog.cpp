@@ -2,6 +2,7 @@
 #include "ui_progressdialog.h"
 #include "strings.h"
 #include <QGraphicsOpacityEffect>
+#include <QKeyEvent>
 
 ProgressDialog::ProgressDialog(QWidget *parent) :
     QDialog(parent),
@@ -92,4 +93,9 @@ int ProgressDialog::progressBarValue()
 void ProgressDialog::setProgressBarValue(int val)
 {
     ui->progressBar->setValue(val);
+}
+
+void ProgressDialog::keyPressEvent(QKeyEvent *e)
+{
+    if(e->key() == Qt::Key_Escape)return;
 }

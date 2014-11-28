@@ -2,6 +2,9 @@
 #include "ui_vtinfoform.h"
 #include <QGraphicsOpacityEffect>
 #include <QWidget>
+#include <QPainter>
+#include <QKeyEvent>
+
 vtinfoform::vtinfoform(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::vtinfoform)
@@ -20,14 +23,35 @@ vtinfoform::vtinfoform(QWidget *parent) :
     m_blurBackground->hide();
 
 
-
+    QPixmap tmppix1("images/background.png");
+    //tmppix.fill(Qt::red);
+    ui->cbSkin->addItem(QIcon(tmppix1),"Blue");
+    QPixmap tmppix("images/background_dark.png");
+    //tmppix.fill(Qt::red);
+    ui->cbSkin->addItem(QIcon(tmppix),"Dark");
     connect(ui->btnCloseInfoForm,SIGNAL(clicked()),this,SLOT(SLOT_hideForm()));
+    connect(ui->cbSkin,SIGNAL(currentIndexChanged(int)),this,SLOT(SLOT_cbSkinIndexChange(int)));
     this->hide();
 }
 
 vtinfoform::~vtinfoform()
 {
     delete ui;
+}
+
+void vtinfoform::setCurrentSkin(int index)
+{
+    ui->cbSkin->setCurrentIndex(index);
+}
+
+void vtinfoform::keyPressEvent(QKeyEvent *e)
+{
+    if(e->key() == Qt::Key_Escape)return;
+}
+
+void vtinfoform::SLOT_cbSkinIndexChange(int index)
+{
+    emit SIGNAL_SkinChange(index);
 }
 
 void vtinfoform::SLOT_hideForm()
