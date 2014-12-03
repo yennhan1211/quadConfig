@@ -142,7 +142,7 @@ void FlashHelper::updateFlashNew()
         m_port->waitForBytesWritten(50);
         qDebug() << "erase";
         SLEEP(100)
-        writeByte(tmpBuffLen,0x01,0x01);
+        writeByte(tmpBuffLen,0x01,0x01);//Ra lenh xoa
         mTimer.start();
     }
     else
@@ -208,8 +208,8 @@ void FlashHelper::SLOT_ReadByteFromBuffer()
                                 if (mBuffLen == mBuffSize)
                                     tmpp = ((int)tmpData+1) * 100 * mBuffSize / mFileLen;
                                 else tmpp = (((int)tmpData ) * mBuffSize + mBuffLen) * 100 / mFileLen;
-                                 emit _flashProgressChanged(tmpp);
-                                 qDebug() << "Percent flash " << tmpp;
+                                emit _flashProgressChanged(tmpp);
+                                qDebug() << "Percent flash " << tmpp;
                                 tmpBuff.resize(mBuffLen);
                                 for(int i = 0; i < mBuffLen;i++)
                                 {
@@ -238,7 +238,7 @@ void FlashHelper::SLOT_ReadByteFromBuffer()
             }
         }
         else {
-            mPortLock->unlock();
+             mPortLock->unlock();
         }
 }
 
@@ -255,7 +255,6 @@ void FlashHelper::SLOT_timeOut()
     }
     else timeOutToRespon++;
     if(timeOutToRespon >= 20){
-
         responFlag = false;
         if(mTimer.isActive())mTimer.stop();
         emit _flashFinish(timeOutToRespon);
@@ -288,7 +287,6 @@ void FlashHelper::write4Byte(QByteArray data, char mesClass, char mesID)
 
 void FlashHelper::writeByte(QByteArray mData, char mClass, char mId)
 {
-
     char cka = 0, ckb = 0;
     QByteArray tmpBuff;tmpBuff.resize(mData.length() + 8);
     tmpBuff[0] = 0xb5;

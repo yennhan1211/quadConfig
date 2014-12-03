@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>C:/Users/Adm/Desktop/ssl.crt</file>
+        <file>ssl.crt</file>
+        <file>ssl.key</file>
     </qresource>
 </RCC>

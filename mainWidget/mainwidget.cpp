@@ -590,7 +590,6 @@ void mainWidget::initWidgetValue()
     else m_btnTranmisterModeGroups->button(m_SoftWareConfig.getTxMode() )->setChecked(true);
     ui->btnVoltAlarm1->click();
 
-
     ui->lePerAlarm->setValidator(new QIntValidator(10,70));
     ui->lePerAlarm_2->setValidator(new QIntValidator(10,70));
     ui->lePerAlarm_3->setValidator(new QIntValidator(10,70));

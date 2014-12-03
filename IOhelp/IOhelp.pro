@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui widgets network serialport
+QT       +=  core widgets network serialport
 
 TARGET = IOhelp
 TEMPLATE = lib
@@ -22,7 +22,8 @@ HEADERS +=\
     iohelper.h \
     downloadhelper.h \
     ioconfig.h \
-    sslclient.h
+    sslclient.h \
+    cmddef.h
 
 unix {
     target.path = /usr/lib

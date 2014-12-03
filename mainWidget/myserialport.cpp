@@ -222,7 +222,7 @@ void MySerialPort::clearSIGNAL()
 {
     QCoreApplication::removePostedEvents(&_serialWrite);
 }
-void MySerialPort::checkDevice()// 12c4 ea12
+void MySerialPort::checkDevice()//
 {
   //  qDebug() << "scan my device";
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -250,7 +250,7 @@ void MySerialPort::checkDevice()// 12c4 ea12
                             qDebug() << "lock thread->" << &m_mutex;
                             startSerialReadWrite();
                             emit SIGNAL_connectStatus(true);
-                             if (m_flashstatus >= 2) {
+                            if (m_flashstatus >= 2) {
                                  qDebug() << "-> jum 10";
                                  _flash.emitFlashStatus(FlashHelper::FlashOk);
                                  m_flashstatus = 0;
@@ -318,7 +318,7 @@ void MySerialPort::SLOT_startUpdateFlash(const QString filePath)
                 }
             }
 
-        }else {
+        }else {// truong hop khong connect
                     if(_timerScan.isActive())_timerScan.stop();
                     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
                     {
@@ -411,8 +411,7 @@ void MySerialPort::cks(unsigned char data)
 }
 void MySerialPort::SLOT_readByteData(QSerialPort *port)
 {
-    try
-     {
+
 
          char tmpbuffer[2048];
          qint64 num = port->bytesAvailable();
@@ -460,10 +459,5 @@ void MySerialPort::SLOT_readByteData(QSerialPort *port)
             }
          }
        }
-     }
-     catch(std::bad_alloc &e)
-     {
-         qDebug() << "exception ->" << e.what();
 
-     }
 }
