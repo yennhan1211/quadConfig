@@ -1,9 +1,8 @@
 #ifndef RSACRYPTO_H
 #define RSACRYPTO_H
 
-#include <openssl/rsa.h>
 #include <QString>
-
+typedef struct rsa_st RSA;
 class RsaCrypto
 {
 public:
@@ -18,6 +17,9 @@ public:
 
     int encryptWithPublicKey(const QByteArray& from, QByteArray& to);
     int decryptWithPrivateKey(const QByteArray& from, QByteArray& to);
+
+    int sign(const QByteArray &from, QByteArray &to);
+    int verify(const QByteArray &text, const QByteArray &sig);
 
 private:
     unsigned long m_errorCode;

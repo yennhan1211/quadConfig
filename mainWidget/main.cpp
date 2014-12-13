@@ -2,7 +2,6 @@
 #include <QApplication>
 #include <QSplashScreen>
 #include <mystring.h>
-#include <myapp.h>
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

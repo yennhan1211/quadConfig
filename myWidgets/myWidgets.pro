@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets
+QT       += widgets network
 
 TARGET = myWidgets
 TEMPLATE = lib
@@ -19,7 +19,8 @@ SOURCES += \
     progressdialog.cpp \
     progressring.cpp \
     counterlabel.cpp \
-    volumeslider.cpp
+    volumeslider.cpp \
+    buttonprogress.cpp
 
 HEADERS +=\
         mywidgets_global.h \
@@ -30,7 +31,8 @@ HEADERS +=\
     progressdialog.h \
     progressring.h \
     counterlabel.h \
-    volumeslider.h
+    volumeslider.h \
+    buttonprogress.h
 
 unix {
     target.path = /usr/lib
@@ -41,5 +43,12 @@ FORMS += \
     vtmessagebox.ui \
     vtinfoform.ui \
     progressdialog.ui \
-    volumeslider.ui
+    volumeslider.ui \
+    buttonprogress.ui
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../IOhelp/release/ -lIOhelp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../IOhelp/debug/ -lIOhelp
+
+INCLUDEPATH += $$PWD/../IOhelp
+DEPENDPATH += $$PWD/../IOhelp

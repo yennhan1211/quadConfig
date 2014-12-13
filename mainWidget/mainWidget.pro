@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     flashhelper.cpp \
     requestmanager.cpp \
     waypointform.cpp \
-    myapp.cpp
 
 HEADERS  += mainwidget.h \
     myserialport.h \
@@ -33,7 +32,6 @@ HEADERS  += mainwidget.h \
     flashhelper.h \
     requestmanager.h \
     waypointform.h \
-    myapp.h
 
 FORMS    += mainwidget.ui \
     waypointform.ui
@@ -73,8 +71,6 @@ else:unix: LIBS += -L$$OUT_PWD/../IOhelp/ -lIOhelp
 
 INCLUDEPATH += $$PWD/../IOhelp
 DEPENDPATH += $$PWD/../IOhelp
-
-
 
 
 RC_ICONS = Apollo.ico

@@ -23,6 +23,8 @@
 #include <counterlabel.h>
 #include <waypointform.h>
 #include <ioconfig.h>
+#include <sslclient.h>
+#include <buttonprogress.h>
 namespace Ui {
 class mainWidget;
 }
@@ -50,6 +52,8 @@ public:
     void initRxview();
     void initSensorview();
     void initEventFilter();
+    void initClient();
+    void initButtonProgress();
 protected:
    enum Tabs{
         TabRx = 0,
@@ -74,7 +78,10 @@ private:
         QButtonGroup *m_btnSetCenterGroups;
         QButtonGroup *m_btnGimbalOnOffGroups;
         QButtonGroup *m_btnTranmisterModeGroups;
+        buttonProgress *mButtonProgress;
         ioConfig m_SoftWareConfig;
+        sslClient *mClientSoftWare;
+        sslClient *mClientFirmWare;
         QHash<int, QObject*> m_WidgetsIdHash;
         QHash<int, QObject*>m_widgettoWrite;
         QHash<int, QObject*> m_RxViewIdHash;
@@ -162,6 +169,7 @@ public slots:
         void SLOT_changeSkin(int);
 
 signals:
+        void SIGNAL_closeProgram();
         void SIGNAL_requestWitreData(int*,int,int);
         void SIGNAL_requestReadData(int addr,int len);
         void SIGNAL_handleReconnect();

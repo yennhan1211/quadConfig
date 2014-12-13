@@ -10,7 +10,7 @@ mainWidget::mainWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     m_SoftWareConfig.loadConfigFromFile(APP_CONFIG);
-    qDebug() << m_SoftWareConfig.getSkin() << m_SoftWareConfig.getTxMode();
+
     CustomFrame::setWindowSize(1000,600);
     CustomFrame::setWindowTitleSize(1000,30);
     if(m_SoftWareConfig.getSkin() == DARK_SKIN)
@@ -18,25 +18,32 @@ mainWidget::mainWidget(QWidget *parent) :
     else if(m_SoftWareConfig.getSkin() == GREY_SKIN)
     CustomFrame::setBackGroundImage(APP_BACKGROUND2);
     CustomFrame::setWindowTitle(APP_TITLE);
+
+
     m_serialPort = new MySerialPort(this);
     initRxview();
     initSensorview();
     initTooltips();
     loadImage();
+    initButtonProgress();
     initWidget();
-    initWidgetToHash();   
+    initWidgetToHash();
     initConnectionsSIGNALtoSLOT();
     initWidgetValue();
-    intDefaultValue();  
+    intDefaultValue();
     initEventFilter();
+    initClient();
     m_serialPort->start();
     initTimer();
 
+    qDebug() << "pos" <<m_SoftWareConfig.posX() << m_SoftWareConfig.posY();
+    this->move(m_SoftWareConfig.posX(),m_SoftWareConfig.posY());
     qDebug() << "main thread" << QThread::currentThreadId();
 }
 
 mainWidget::~mainWidget()
 {
+    emit SIGNAL_closeProgram();
     m_requestReadTimer.stop();
     if(m_serialPort->isRunning())
     {
@@ -45,8 +52,12 @@ mainWidget::~mainWidget()
         m_serialPort->deleteLater();
     }
 
+    m_SoftWareConfig.getStartPos(this->pos().x(),this->pos().y());
     m_SoftWareConfig.writeConfigToFile(APP_CONFIG);
-
+    if(mClientSoftWare->isRunning()){
+        mClientSoftWare->quit();
+        mClientSoftWare->wait(1000);
+    }
     if(m_btnConfigFrameGroups != NULL) m_btnConfigFrameGroups->deleteLater();
     if(m_btnFaisafeActionGroups != NULL)  m_btnFaisafeActionGroups->deleteLater();
     if(m_btnGimbalOnOffGroups != NULL) m_btnGimbalOnOffGroups->deleteLater();
@@ -68,13 +79,6 @@ mainWidget::~mainWidget()
     if(m_waitDialog != NULL)  m_waitDialog->deleteLater();
     if(m_info != NULL)  m_info->deleteLater();
     if(m_counterlabel != NULL)  m_counterlabel->deleteLater();
-
-
-//    if(m_rollSensor != NULL)  m_rollSensor->deleteLater();
-//    if(m_pitchSensor != NULL)  m_pitchSensor->deleteLater();
-//    if(m_yawSensor != NULL)  m_yawSensor->deleteLater();
-//    if(m_objFocus != NULL)  m_objFocus->deleteLater();
-//    if(m_objTriger != NULL)  m_objTriger->deleteLater();
 
     delete ui;
 }
@@ -157,6 +161,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(ui->sldAgility,SIGNAL(sliderReleased()),this,SLOT(SLOT_getDataWriteFromSliderRelease()));
     connect(ui->sldAgility,SIGNAL(actionTriggered(int)),this,SLOT(SLOT_actionTrigerSlider(int)));
     connect(ui->sldAgility,SIGNAL(valueChanged(int)),this,SLOT(SLOT_getDataWriteFromSliderTriger()));
+    connect(ui->sldAgility,SIGNAL(valueChanged(int)),mButtonProgress,SLOT(SLOT_percentChange(int)));
     connect(ui->sldAgility,SIGNAL(sliderPressed()),this,SLOT(SLOT_stopUpdateUi()));
 
     connect(ui->sldYawRate,SIGNAL(sliderReleased()),this,SLOT(SLOT_getDataWriteFromSliderRelease()));
@@ -282,6 +287,7 @@ void mainWidget::initConnectionsSIGNALtoSLOT()
     connect(ui->btnInfo,SIGNAL(clicked()),m_info,SLOT(SLOT_showForm()));
 
     connect(ui->btnUpdate,SIGNAL(clicked()),this,SLOT(SLOT_btnUpdate_Click()));
+
 }
 
 void mainWidget::initWidgetToHash()
@@ -1797,6 +1803,27 @@ void mainWidget::initEventFilter()
             QLineEdit *tmp = qobject_cast<QLineEdit*>(k);
             if(tmp)tmp->installEventFilter(this);
     }
+}
+
+void mainWidget::initClient()
+{
+    mClientSoftWare = new sslClient(IP_SERVER,PORT_SERVER,0);
+    connect(m_info,SIGNAL(SIGNAL_checkUpdateSoft(QString)),mClientSoftWare,SLOT(SLOT_checkUpdate(QString)));
+    connect(mClientSoftWare,SIGNAL(SIGNAL_checkStatus(int)),m_info,SLOT(SLOT_changeUpdateStatus(int)));
+    connect(mClientSoftWare,SIGNAL(SIGNAL_softwareArrival(QString)),m_info,SLOT(SLOT_getRunPath(QString)));
+    connect(this,SIGNAL(SIGNAL_closeProgram()),mClientSoftWare,SLOT(SLOT_Mainclose()));
+    connect(m_info,SIGNAL(SIGNAL_getUpdateSoft()),mClientSoftWare,SLOT(SLOT_getUpdate()));
+    connect(m_info,SIGNAL(SIGNAL_changeBackGroundDownload(int)),mButtonProgress,SLOT(SLOT_changeBackground(int)));
+    connect(mClientSoftWare,SIGNAL(SIGNAL_percentDownload(int)),mButtonProgress,SLOT(SLOT_percentChange(int)));
+    connect(mButtonProgress,SIGNAL(btn_Click()),m_info,SLOT(SLOT_showForm()));
+    mClientSoftWare->start();
+
+}
+
+void mainWidget::initButtonProgress()
+{
+    mButtonProgress = new buttonProgress(this);
+    mButtonProgress->move(800,560);
 }
 
 

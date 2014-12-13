@@ -15,7 +15,8 @@ SOURCES += \
     iohelper.cpp \
     downloadhelper.cpp \
     ioconfig.cpp \
-    sslclient.cpp
+    sslclient.cpp \
+    rsacrypto.cpp
 
 HEADERS +=\
         iohelp_global.h \
@@ -23,7 +24,8 @@ HEADERS +=\
     downloadhelper.h \
     ioconfig.h \
     sslclient.h \
-    cmddef.h
+    cmddef.h \
+    rsacrypto.h
 
 unix {
     target.path = /usr/lib
@@ -32,3 +34,8 @@ unix {
 
 RESOURCES += \
     myRes.qrc
+
+win32: LIBS += -LC:/OpenSSL-Win32/lib/MinGW/ -leay32
+
+INCLUDEPATH += C:/OpenSSL-Win32/include
+DEPENDPATH += C:/OpenSSL-Win32/include

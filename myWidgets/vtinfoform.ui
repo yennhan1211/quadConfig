@@ -22,7 +22,7 @@ background-color:#1abc9c;
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
+     <y>5</y>
      <width>281</width>
      <height>25</height>
     </rect>
@@ -45,7 +45,7 @@ color:white;
    <property name="geometry">
     <rect>
      <x>139</x>
-     <y>50</y>
+     <y>40</y>
      <width>151</width>
      <height>25</height>
     </rect>
@@ -91,8 +91,8 @@ color:white;
   <widget class="QPushButton" name="btnCloseInfoForm">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>140</y>
+     <x>220</x>
+     <y>150</y>
      <width>75</width>
      <height>25</height>
     </rect>
@@ -124,7 +124,7 @@ QPushButton::pressed {
    <property name="geometry">
     <rect>
      <x>170</x>
-     <y>80</y>
+     <y>70</y>
      <width>100</width>
      <height>25</height>
     </rect>
@@ -156,7 +156,7 @@ QComboBox::down-arrow {
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>80</y>
+     <y>70</y>
      <width>30</width>
      <height>25</height>
     </rect>
@@ -170,6 +170,38 @@ color:white;
    </property>
    <property name="text">
     <string>Skin</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnCheckUpdate">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>110</y>
+     <width>130</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    font-size:13px;
+	font-weight:normal;
+    background-color:transparent;
+	color:#efefef;
+    border:1px solid #efefef;
+	padding-bottom:3px;
+	font-family:UTM Avo;
+}
+
+QPushButton::hover {
+    background-color:#16a085;
+}
+
+QPushButton::pressed {
+    background-color:#2ecc71;
+}</string>
+   </property>
+   <property name="text">
+    <string>Check Update</string>
    </property>
   </widget>
  </widget>

@@ -6,6 +6,7 @@
 #include <openssl/engine.h>
 #include <QDebug>
 #include <QCryptographicHash>
+#include <openssl/rsa.h>
 
 RsaCrypto::RsaCrypto()
 {
@@ -62,10 +63,10 @@ int RsaCrypto::encryptWithPublicKey(const QByteArray &from, QByteArray &to)
     int rsaSize = RSA_size(m_rsaPublic);
     unsigned char sigret[rsaSize];
 
-    QByteArray sigmes = QCryptographicHash::hash(from, QCryptographicHash::Sha1);
-    qDebug() << sigmes.toHex();
+//    QByteArray sigmes = QCryptographicHash::hash(from, QCryptographicHash::Sha1);
+    //qDebug() << sigmes.toHex();
 
-    int siglen = RSA_public_encrypt(sigmes.length(), (unsigned char*) (sigmes.data()),
+    int siglen = RSA_public_encrypt(from.length(), (unsigned char*) (from.data()),
                                   sigret, m_rsaPublic, RSA_PKCS1_PADDING);
 
     if (siglen < 0) return -1;
@@ -82,7 +83,8 @@ int RsaCrypto::decryptWithPrivateKey(const QByteArray &from, QByteArray& to)
     }
 
     int rsaSize = RSA_size(m_rsaPrivate);
-    unsigned char buffer[rsaSize];
+    unsigned char* buffer = new unsigned char[rsaSize];
+    if(buffer == NULL)qDebug() << "buffer NULL";
     int index = 0;
     int encryptedLength = 0;
 
@@ -90,13 +92,46 @@ int RsaCrypto::decryptWithPrivateKey(const QByteArray &from, QByteArray& to)
         QByteArray bytes = from.mid(index, rsaSize);
         int len = RSA_private_decrypt(bytes.length(), (unsigned char*) (bytes.data()),
                 buffer, m_rsaPrivate, RSA_PKCS1_PADDING);
+
         if (len < 0) {
+            qDebug() << "return" << getErrorString();
+
             return -1;
         } else {
             encryptedLength += len;
-            to.append((char*) buffer);
+            to.append((char*) buffer,len);
             index += rsaSize;
         }
     }
+    delete buffer;
+    qDebug() << "len" << encryptedLength;
     return encryptedLength;
+}
+int RsaCrypto::sign(const QByteArray &from, QByteArray &to)
+{
+    if (m_rsaPrivate == 0) {
+        return -1;
+    }
+
+    int rsaSize = RSA_size(m_rsaPrivate);
+    unsigned int siglen;
+    unsigned char sigret[rsaSize];
+    QByteArray hash = QCryptographicHash::hash(from,QCryptographicHash::Sha1);
+    int ret = RSA_sign(NID_sha1, (unsigned char*)hash.data(), hash.size(),
+                    sigret, &siglen, m_rsaPrivate);
+    to.append((char*)sigret, (int)siglen);
+    qDebug() << "sig len" << siglen;
+    return ret;
+}
+
+int RsaCrypto::verify(const QByteArray &text, const QByteArray &sig)
+{
+    if (m_rsaPublic == NULL) {
+        return -1;
+    }
+    QByteArray hash = QCryptographicHash::hash(text,QCryptographicHash::Sha1);
+    int ret = RSA_verify(NID_sha1, (unsigned char*)hash.data(), hash.size(),
+               (unsigned char*)sig.data(), sig.size(), m_rsaPublic);
+    qDebug() << ret;
+    return ret;
 }

@@ -5,7 +5,7 @@
 #include "mywidgets_global.h"
 #include <QFrame>
 #include <QDialog>
-
+#include <QProcess>
 namespace Ui {
 class vtinfoform;
 }
@@ -21,14 +21,25 @@ public:
 private:
     Ui::vtinfoform *ui;
     QFrame *m_blurBackground;
+    QProcess    *mpro ;
+    QString mPath;
+    int mState;
  protected:
     void keyPressEvent(QKeyEvent * e);
  signals:
     void SIGNAL_SkinChange(int);
+    void SIGNAL_checkUpdateSoft(QString);
+    void SIGNAL_getUpdateSoft();
+    void SIGNAL_changeBackGroundDownload(int);
  public slots:
     void SLOT_cbSkinIndexChange(int);
     void SLOT_hideForm();
     void SLOT_showForm();
+    void SLOT_checkUpdate();
+    void SLOT_changeUpdateStatus(int);
+    void SLOT_getRunPath(QString);
+    void SLOT_RunProcess();
+    void SLOT_setText();
 };
 
 #endif // VTINFOFORM_H
