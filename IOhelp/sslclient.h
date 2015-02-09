@@ -36,6 +36,7 @@ public:
     };
     explicit sslClient(const QString host,int port,QObject *parent = 0);
     ~sslClient();
+    void setEnableBreak(bool);
     void run();
 private:
     QByteArray  mBuffer;
@@ -49,10 +50,12 @@ private:
     QTimer      mTimer;
     QTimer      mTimeOutResquet;
     QTimer      mTimeOutDownload;
+    QTimer      mSpeedCalc;
     qint64      mByteTotalRec;
     qint64      mFileSize;
     qint64      mTotalByteEmit;
     qint64      mByteWriteToTmp;
+    qint64      mByteRecTmp;
     RsaCrypto   mRSA;
     QString     mCurrentRequestCMD;
     QString     mHashRec;
@@ -64,10 +67,12 @@ private:
     bool        fileSizeFlag;
     bool        isDownloading;
     bool        isDataTranfer;
+    bool        enableBreak;
 // install infomation
     QString     mInstallFilePath;
+    QString     mInstallFileInfoPath;
     QString     mVersion;
-
+    QString     mVersionRec;
 // breaktion download info
     QString     mDownloadFilePath;// duong dan file thong tin
     QString     mBreakFilePath;// duong dan file da luu
@@ -77,26 +82,26 @@ private:
     qint64      mBreakFileSize;
     qint64      mCurrentPosBreakInFile;
 
-
     void writeLog(QString error);
     void writeInstallInfo();
     void writeDownloadInfo();
     bool checkDownloadInfo();
-    void checkInstallInfo();
+    bool checkInstallInfo();
     void sendCMD(QString cmd);
 signals:
-    void SIGNAL_checkStatus(int);
-    void SIGNAL_percentDownload(int);
     void SIGNAL_appendTmpFile();
     void SIGNAL_checkFile();
     void SIGNAL_emitCMD(const QString);
     void SIGNAL_emitCheckUpdate();
     void SIGNAL_getSoft();
     void SIGNAL_getFirm();
+//Public signal
+    void SIGNAL_checkStatus(int);
+    void SIGNAL_percentDownload(int);
     void SIGNAL_firmwareArrival(const QByteArray);
     void SIGNAL_softwareArrival(const QString);
 private slots:
-
+    void SLOT_SpeedCalc();
     void SLOT_connected();
     void SLOT_hostFound();
     void SLOT_readCMD();

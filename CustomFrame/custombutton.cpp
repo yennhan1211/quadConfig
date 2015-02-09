@@ -26,6 +26,7 @@ void CustomButton::resizeEvent(QResizeEvent *event)
     Q_UNUSED(event);
 
     InitPixmaps();
+
 }
 
 void CustomButton::paintEvent(QPaintEvent *event)

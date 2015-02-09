@@ -19,7 +19,8 @@ mainWidget::mainWidget(QWidget *parent) :
     CustomFrame::setBackGroundImage(APP_BACKGROUND2);
     CustomFrame::setWindowTitle(APP_TITLE);
 
-
+    m_errorWidget = new errorForm();
+    m_errorWidget->show();
     m_serialPort = new MySerialPort(this);
     initRxview();
     initSensorview();
@@ -370,6 +371,9 @@ void mainWidget::initWidgetToHash()
     m_WidgetsIdHash.insert(HARDWARE_ADDR,ui->lbHWVer);
     m_WidgetsIdHash.insert(SOFTWARE_ADDR,ui->lbSWVer);
     m_WidgetsIdHash.insert(SERIAL_NUM_ADDR,ui->lbSerialNum);
+
+//error question
+    m_WidgetsIdHash.insert(ERROR_ADDR,m_errorWidget);
     //mWidgetsIdHash.insert()
 
     m_ObjTolabel.insert(ui->sldAileron,ui->lbA);
@@ -1013,11 +1017,13 @@ void mainWidget::SLOT_changeStackedConfig()
     }
    QPropertyAnimation *anim = new QPropertyAnimation(ui->stackedWidgetConfig, "pos");
    if(anim == NULL)return;
+
    anim->setKeyValueAt(0, QPointF(ui->stackedWidgetConfig->x() - 20, ui->stackedWidgetConfig->y()));
    anim->setKeyValueAt(0.8, QPointF(ui->stackedWidgetConfig->x() + 5, ui->stackedWidgetConfig->y()));
    anim->setKeyValueAt(1, QPointF(ui->stackedWidgetConfig->x(), ui->stackedWidgetConfig->y()));
    anim->setDuration(300);
    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
    qDebug() << ui->stackedWidgetConfig->count();
    m_counterlabel->setCurrentCounter(ui->stackedWidgetConfig->currentIndex()+1);
 }
@@ -1293,7 +1299,7 @@ void mainWidget::SLOT_btnUpdate_Click()
 //    if(m_wpWidget != NULL)
 //    m_wpWidget = new wayPointForm();
 //    m_wpWidget->show();
-
+      m_errorWidget->SLOT_showForm(7);
 }
 
 void mainWidget::SLOT_lineEditLoseFocus(QObject* obj)
@@ -1675,7 +1681,7 @@ void mainWidget::SLOT_emitSIGNALtoRead()
              }
             break;
             }
-
+        if(m_counterToRead == 17){emit SIGNAL_requestReadData(ERROR_ADDR,1);m_dataCounter+=5;}
         if(++m_counterToRead >= 20)m_counterToRead =0;
         //if(m_dataCounter >= 20){emit SIGNAL_handleReconnect();m_dataCounter = 0;}
 

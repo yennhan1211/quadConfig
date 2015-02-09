@@ -25,6 +25,7 @@
 #include <ioconfig.h>
 #include <sslclient.h>
 #include <buttonprogress.h>
+#include <errorform.h>
 namespace Ui {
 class mainWidget;
 }
@@ -68,6 +69,7 @@ protected:
 private:
     Ui::mainWidget *ui;
         wayPointForm *m_wpWidget;
+        errorForm *m_errorWidget;
         RxMonitorView *rxViewLeft;
         RxMonitorView *rxViewRight;
         MySerialPort *m_serialPort;

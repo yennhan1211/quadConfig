@@ -9,6 +9,7 @@
 #include "vtlabel.h"
 #include "vtrxmonitorview.h"
 #include "vtlineedit.h"
+#include "vterrorshow.h"
 VtekInterface *VtekInterface::createVtekObject(QObject *view)
 {
     const char* chars = view->metaObject()->className();
@@ -50,6 +51,10 @@ VtekInterface *VtekInterface::createVtekObject(QObject *view)
      else if(className == "QLineEdit")
       {
           result = new vtlineEdit(view);
+      }
+     else if(className == "errorForm")
+      {
+          result = new vtErrorShow(view);
       }
     return result;
 }

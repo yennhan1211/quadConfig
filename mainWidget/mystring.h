@@ -16,7 +16,7 @@
 #define YAW_BACKGROUND_IMAGE_URL                "images/sensor/bgyaw.png"
 #define ROLL_PITCH_BACKGROUND_IMAGE_URL         "images/sensor/bgroll.png"
 
-#define IP_SERVER                               "192.168.2.102"
+#define IP_SERVER                               "192.168.2.104"
 #define PORT_SERVER                             9993
 
 #define IN_CALIB_ACC                            "Calibration Accel..."
@@ -39,7 +39,7 @@
 
 #define FLASH_OK                                "Update firmware successfully"
 #define FLASH_ERROR                             "Update firmware failed"
-#define FLASH_NOTFOUND_DEVICE                   "Not found device"
+#define FLASH_NOTFOUND_DEVICE                   "Device not found"
 
 
 #define QUADROTOR_X_DES_URL                     "doc/Aircraft_QuadRotorX.html"
@@ -51,6 +51,7 @@
 #define OCTOROTOR_X_DES_URL                     "doc/Aircraft_OctoRotorV.html"
 #define OCTOROTOR_PLUS_DES_URL                  "doc/Aircraft_OctoRotorI.html"
 #define OCTOROTOR_QUAD_DES_URL                  "doc/Aircraft_OctoRotorX.html"
+#define ERROR_LIST_URL                          "doc/Aircraft_ErrorList.txt"
 
 #define DES_SETCENTER_RX                        "Note: Only the aileron, elevator and rudder controls need to be centered."
 #define DES_BIND_RX                             "Apply for Spektrum sattalie DMS2 or DSMx"

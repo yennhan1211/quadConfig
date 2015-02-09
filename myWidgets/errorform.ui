@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>errorForm</class>
+ <widget class="QWidget" name="errorForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>250</width>
+    <height>150</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="btnHide">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>0</y>
+     <width>50</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    font-size:13px;
+	font-weight:normal;
+    background-color:transparent;
+	color:#efefef;
+    border:1px solid #efefef;
+	padding-bottom:3px;
+	font-family:UTM Avo;
+}
+
+QPushButton::hover {
+    background-color:#16a085;
+}
+
+QPushButton::pressed {
+    background-color:#2ecc71;
+}</string>
+   </property>
+   <property name="text">
+    <string>Hide</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="teErrorDisplay">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>22</y>
+     <width>250</width>
+     <height>128</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QTextEdit {
+	color:#efefef;
+   background-color:red;
+}</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

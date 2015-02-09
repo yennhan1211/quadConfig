@@ -22,6 +22,9 @@ sslClient::sslClient(const QString host,int port,QObject *parent) :
     mCurrentPosBreakInFile=0;
     isDataTranfer =  false;
     isDownloading = false;
+    enableBreak = false;
+    mVersion = SOFTWARE_VERSION;
+    mByteRecTmp = 0;
     QFile f(":/ssl.key");f.open(QIODevice::ReadOnly);
     mKey  = f.readAll();
     if(!mRSA.createRsaPrivateKey(mKey.data()))qDebug() << "creat RSA fail";
@@ -35,11 +38,14 @@ sslClient::sslClient(const QString host,int port,QObject *parent) :
     connect(this,SIGNAL(SIGNAL_emitCheckUpdate()),this,SLOT(SLOT_timeOut()));
     connect(this,SIGNAL(SIGNAL_getFirm()),this,SLOT(SLOT_getFirmWare()));
     connect(this,SIGNAL(SIGNAL_getSoft()),this,SLOT(SLOT_getSoftWare()));
+    connect(&mSpeedCalc,SIGNAL(timeout()),this,SLOT(SLOT_SpeedCalc()));
     mTimeOutResquet.setInterval(TIMEOUT);
     mTimeOutResquet.setSingleShot(true);
     mTimeOutResquet.moveToThread(this);
     mTimeOutDownload.setInterval(TIMEOUT_DOWNLOAD);
     mTimeOutDownload.moveToThread(this);
+    mSpeedCalc.setInterval(1000);
+    mSpeedCalc.moveToThread(this);
     mTimer.moveToThread(this);
     moveToThread(this);
 }
@@ -56,15 +62,24 @@ sslClient::~sslClient()
     }
 }
 
+void sslClient::setEnableBreak(bool val)
+{
+    enableBreak = val;
+}
+
 void sslClient::run()
 {
     qDebug() << "ssl client start" << QThread::currentThreadId();
     mTmpPath = QStandardPaths::standardLocations(QStandardPaths::DataLocation)[0];
     QDir mDir(mTmpPath);
     if(!mDir.exists())mDir.mkdir(mTmpPath);
-    mInstallFilePath = mTmpPath +"/" + INSTALL_INFO;
+    mInstallFileInfoPath = mTmpPath +"/" + INSTALL_INFO;
     mDownloadFilePath = mTmpPath +"/" + DOWNLOAD_INFO;
-
+    mSpeedCalc.start();
+      if(checkInstallInfo())
+      {
+          emit SIGNAL_softwareArrival(mInstallFilePath);
+      }
 //    if(checkDownloadInfo())
 //    {
 //        if(!mTimeOutDownload.isActive())mTimeOutDownload.start();
@@ -86,11 +101,13 @@ void sslClient::writeLog(QString error)
 
 void sslClient::writeInstallInfo()
 {
-     QFile f(mInstallFilePath);
+     QFile f(mInstallFileInfoPath);
      if(f.open(QIODevice::WriteOnly))
      {
          QJsonObject tmpJson;
-         tmpJson["Version"] = mVersion;
+         tmpJson["Version"] = mVersionRec;
+         tmpJson["Path"] = mTmpFileName;
+         tmpJson["Hash"] = mHashRec;
          tmpJson["InstallDate"] = QDateTime::currentDateTime().toString();
          QJsonDocument saveDoc(tmpJson);
          f.write(saveDoc.toJson());
@@ -143,16 +160,43 @@ bool sslClient::checkDownloadInfo()
         mCurrentPosBreakInFile = (qint64)json["Pos"].toDouble();
         if(mCurrentPosBreakInFile >= mBreakFileSize || mCurrentPosBreakInFile== 0 ){mIsBreak = false;return false;}
         if(tmp64 != mCurrentPosBreakInFile)qDebug() << "file size not match";
-
-
         return true;
     }
 
 }
 
-void sslClient::checkInstallInfo()
+bool sslClient::checkInstallInfo()
 {
-
+    QFile f(mInstallFileInfoPath);// duong dan file thong tin
+    if(!f.exists())return false;
+    if(f.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "open install config file ok";
+        QByteArray saveDAta = f.readAll();
+        f.close();
+        QJsonDocument loadDoc(QJsonDocument::fromJson(saveDAta));
+        QJsonObject json = loadDoc.object();
+        QString mVer = json["Version"].toString();
+        mInstallFilePath = json["Path"].toString();
+        if(mVer != mVersion){
+            QFile mf(mInstallFilePath);
+            if(mf.exists()){
+               mf.open(QIODevice::ReadOnly);
+               QByteArray byteFrom = mf.readAll();
+               mf.close();
+               QString hashCalc = QCryptographicHash::hash(byteFrom,QCryptographicHash::Sha1).toHex();
+               if(hashCalc == json["Hash"].toString())return true;
+               else return false;
+            }else return false;
+            qDebug() << "new version" << mVer;
+        }
+        else {
+            mInstallFilePath = json["Path"].toString();
+            QFile::remove(mInstallFilePath);
+            QFile::remove(mInstallFileInfoPath);
+            return false;
+        }
+    }else return false;
 }
 
 void sslClient::sendCMD(QString cmd)
@@ -161,7 +205,18 @@ void sslClient::sendCMD(QString cmd)
     mCurrentRequestCMD = cmd;
     mTimeOutResquet.start();
     qDebug() << "data send" << cmd ;
-     _sslSocket->write(cmd.toLocal8Bit());
+    _sslSocket->write(cmd.toLocal8Bit());
+}
+
+void sslClient::SLOT_SpeedCalc()
+{
+    if(isDownloading){
+        float tmpf = (float)(mByteTotalRec - mByteRecTmp) / 1024;
+        mByteRecTmp = mByteTotalRec;
+        if(tmpf < 1000)
+        qDebug() << "Speed" << tmpf << "Kb/s";
+        else qDebug() << "Speed" << tmpf/1024 << "Mb/s";
+    }
 }
 
 void sslClient::SLOT_connected()
@@ -222,7 +277,6 @@ void sslClient::SLOT_readData()
        emit SIGNAL_percentDownload(mByteTotalRec*100 / mFileSize);
     }
 }
-
 
 void sslClient::SLOT_sendCMD(QString cmd)
 {
@@ -315,8 +369,11 @@ void sslClient::SLOT_handleCMD(QString mCmd)
     else if(cmdCode == NEW_VER && mCurrentRequestCMD.contains(SOFTWARE))
     {
 //            SLOT_getSoftWare();
+            int _start = mCmd.indexOf('(')+1;
+            int _end   = mCmd.indexOf(')');
+            mVersionRec = mCmd.mid(_start,_end - _start);
             emit SIGNAL_checkStatus(sslClient::NewSoftWareAvailable);
-            qDebug() << "new software available";
+            qDebug() << "new software available" << mVersionRec;
     }
     else if(cmdCode == NEW_VER && mCurrentRequestCMD.contains(FIRMWARE))
     {
@@ -344,23 +401,23 @@ void sslClient::SLOT_handleCMD(QString mCmd)
             mHashRec.clear();
             mHashRec = lstr[0];
             mFileSize = lstr[1].toLongLong();
-            if(!mIsBreak)
+            if(mIsBreak && enableBreak)
             {
-                mTmpFileName.clear();
-                if(mFileSize > MAX_BUFFER_SZIE)
-                {
-                   QString time =  QTime::currentTime().toString();
-                   time = time.replace(":","");
-                   mTmpFileName =mTmpPath +"/" + time +".exe";
-                   qDebug() << "my Path" << mTmpFileName;
-                   if(mTmpFileName.length() == 0){qDebug() <<"wrong path";}
-                   m_File.setFileName(mTmpFileName);
-                }
-                qDebug() << "hash rec " << mHashRec << " file size " << mFileSize;
+                qDebug() << mTmpFileName;
+                m_File.setFileName(mTmpFileName);
             }
             else{
-                 qDebug() << mTmpFileName;
-                 m_File.setFileName(mTmpFileName);
+                 mTmpFileName.clear();
+                 if(mFileSize > MAX_BUFFER_SZIE)
+                 {
+                    QString time =  QTime::currentTime().toString();
+                    time = time.replace(":","");
+                    mTmpFileName =mTmpPath +"/" + time +".exe";
+                    qDebug() << "my Path" << mTmpFileName;
+                    if(mTmpFileName.length() == 0){qDebug() <<"wrong path";}
+                    m_File.setFileName(mTmpFileName);
+                 }
+                 qDebug() << "hash rec " << mHashRec << " file size " << mFileSize;
             }
     }
     else if(cmdCode == START_DOWNLOAD)
@@ -371,7 +428,7 @@ void sslClient::SLOT_handleCMD(QString mCmd)
             disconnect(_sslSocket,SIGNAL(readyRead()),0,0);
             connect(_sslSocket,SIGNAL(readyRead()),this,SLOT(SLOT_readData()));
             if(!mTimeOutDownload.isActive())mTimeOutDownload.start();
-            if(mIsBreak){
+            if(mIsBreak && enableBreak){
                 QString cmd = CMD_READY_REST;
                 QString pos = QString::number(mCurrentPosBreakInFile);
                 emit SIGNAL_checkStatus(sslClient::StartDownload);
@@ -521,8 +578,8 @@ void sslClient::SLOT_checkFile()
     {
         qDebug() << "hash calc match";
         if(fileSizeFlag){
-
           writeDownloadInfo();
+          writeInstallInfo();
           emit SIGNAL_softwareArrival(mTmpFileName);
         }
         else
@@ -556,6 +613,10 @@ void sslClient::SLOT_transferTimeOut()
             _sslSocket->abort();
             delete _sslSocket;
             _sslSocket = NULL;
+            if(!enableBreak){
+                if(mTimeOutDownload.isActive())mTimeOutDownload.stop();
+
+            }
             emit SIGNAL_checkStatus(sslClient::DownloadBreak);
         }
         else isDataTranfer = false;

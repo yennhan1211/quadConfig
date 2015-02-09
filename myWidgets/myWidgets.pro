@@ -20,7 +20,8 @@ SOURCES += \
     progressring.cpp \
     counterlabel.cpp \
     volumeslider.cpp \
-    buttonprogress.cpp
+    buttonprogress.cpp\
+    errorform.cpp
 
 HEADERS +=\
         mywidgets_global.h \
@@ -32,7 +33,8 @@ HEADERS +=\
     progressring.h \
     counterlabel.h \
     volumeslider.h \
-    buttonprogress.h
+    buttonprogress.h\
+    errorform.h
 
 unix {
     target.path = /usr/lib
@@ -44,7 +46,8 @@ FORMS += \
     vtinfoform.ui \
     progressdialog.ui \
     volumeslider.ui \
-    buttonprogress.ui
+    buttonprogress.ui \
+    errorform.ui
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../IOhelp/release/ -lIOhelp
@@ -52,3 +55,9 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../IOhelp/debug/ -l
 
 INCLUDEPATH += $$PWD/../IOhelp
 DEPENDPATH += $$PWD/../IOhelp
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/release/ -lcustomframe
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/debug/ -lcustomframe
+
+INCLUDEPATH += $$PWD/../CustomFrame
+DEPENDPATH += $$PWD/../CustomFrame

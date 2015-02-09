@@ -22,7 +22,7 @@ buttonProgress::buttonProgress(QWidget *parent) :
     ui->btnMybutton->installEventFilter(this);
     mx = 0;my = 0;
     mBlinkState = true;
-    mPercent = 100;
+    mPercent = 0;
 }
 
 buttonProgress::~buttonProgress()

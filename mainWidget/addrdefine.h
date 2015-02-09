@@ -156,6 +156,8 @@
 #define GIMBAL_ON_VAL 1
 #define GIMBAL_OFF_VAL 0
 
+#define ERROR_ADDR  999
+
 #define DARK_SKIN 1
 #define GREY_SKIN 0
 

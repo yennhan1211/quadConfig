@@ -21,7 +21,8 @@ SOURCES += vtekinterface.cpp \
     vtprogessbar.cpp \
     vtlabel.cpp \
     vtrxmonitorview.cpp \
-    vtlineedit.cpp
+    vtlineedit.cpp \
+    vterrorshow.cpp
 
 HEADERS += vtekinterface.h\
         vtekinterface_global.h \
@@ -34,7 +35,8 @@ HEADERS += vtekinterface.h\
     vtprogessbar.h \
     vtlabel.h \
     vtrxmonitorview.h \
-    vtlineedit.h
+    vtlineedit.h \
+    vterrorshow.h
 
 unix {
     target.path = /usr/lib
@@ -58,3 +60,9 @@ else:unix: LIBS += -L$$OUT_PWD/../myWidgets/ -lmyWidgets
 
 INCLUDEPATH += $$PWD/../myWidgets
 DEPENDPATH += $$PWD/../myWidgets
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/release/ -lcustomframe
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CustomFrame/debug/ -lcustomframe
+
+INCLUDEPATH += $$PWD/../CustomFrame
+DEPENDPATH += $$PWD/../CustomFrame
